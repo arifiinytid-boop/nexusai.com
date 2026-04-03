@@ -390,6 +390,9 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
         <div class="mo" data-m="gpt-4o" data-p="openai" data-c="3" data-n="GPT-4o" data-t="s" onclick="selModel(this)"><div class="mi o">⊕</div><div><div class="mo-n">GPT-4o</div><div class="mo-s">Powerful · Multimodal</div></div><span class="mb s">3 CR</span></div>
         <div class="mo" data-m="gpt-4.1" data-p="openai" data-c="4" data-n="GPT-4.1" data-t="p" onclick="selModel(this)"><div class="mi o">⊕</div><div><div class="mo-n">GPT-4.1</div><div class="mo-s">Latest GPT</div></div><span class="mb p">4 CR</span></div>
         <div class="mo" data-m="o3-mini" data-p="openai" data-c="5" data-n="o3-mini" data-t="u" onclick="selModel(this)"><div class="mi o">⊕</div><div><div class="mo-n">o3-mini</div><div class="mo-s">Reasoning · Logic</div></div><span class="mb u">5 CR</span></div>
+        <!--<div class="mg">⚡ Groq Cloud</div>
+        <div class="mo" data-m="llama-3.3-70b-specdec" data-p="groq" data-c="0" data-n="Llama 3.3 70B" data-t="f" onclick="selModel(this)"><div class="mi g" style="background:#f55">L</div><div><div class="mo-n">Llama 3.3 70B</div><div class="mo-s">Super Fast · Open Source</div></div><span class="mb f">FREE</span></div>
+        <div class="mo" data-m="llama-4-scout" data-p="groq" data-c="2" data-n="Llama 4 Scout" data-t="s" onclick="selModel(this)"><div class="mi g" style="background:#f55">L</div><div><div class="mo-n">Llama 4 Scout</div><div class="mo-s">Latest · Reasoning</div></div><span class="mb s">2 CR</span></div>-->
       </div>
     </div>
     <div class="sec-lbl">Recent Chats</div>
@@ -643,8 +646,9 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
 // ── API KEYS ──
 const K = {
   claude: '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',
-  openai: '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',
-  gemini: 'AIzaSyC0YIQN9FNtHDGKAnaT461c2-byNKkAjVQ'
+  openai: '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',
+  gemini: 'AIzaSyC0YIQN9FNtHDGKAnaT461c2-byNKkAjVQ',
+  groq: 'xai-Yi5skUiwGQyYsif31Fkxo2LN9BMSFfW5auWF64qTUQuUGawQQLaPMMReUqxmBclUYfHTdasi7i2Tdluz'
 };
 
 // UNLIMITED credit users (by Roblox username)
@@ -661,7 +665,7 @@ Provide clear explanations for every code snippet you write.`;
 // ── State ──
 let S = {
   user: null, convs: [], curConv: null, msgs: [],
-  model: { id:'gemini-2.0-flash-exp', provider:'gemini', cost:0, name:'Gemini 2.0 Flash', tier:'f' },
+  model: { id:'gemini-2.0-flash', provider:'gemini', cost:0, name:'Gemini 2.0 Flash', tier:'f' },
   credits: 30, plugConnected: false, ws: null, img: null, gen: false,
   draftText: {}, draftImg: {}, // per-conv drafts
   lastClaim: null, plan: 'free',
