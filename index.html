@@ -377,8 +377,9 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
       <div class="model-dd" id="mDD">
         <div class="mg">⬡ Google Gemini</div>
         <div class="mo act" data-m="gemini-2.0-flash" data-p="gemini" data-c="0" data-n="Gemini 2.0 Flash" data-t="f" onclick="selModel(this)"><div class="mi g">G</div><div><div class="mo-n">Gemini 2.0 Flash</div><div class="mo-s">Latest · Fast</div></div><span class="mb f">FREE</span></div>
+        <div class="mo" data-m="gemini-2.5-flash-lite" data-p="gemini" data-c="0" data-n="Gemini 2.5 Flash-Lite" data-t="f" onclick="selModel(this)"><div class="mi g">G</div><div><div class="mo-n">Gemini 2.5 Flash-Lite</div><div class="mo-s">Lite · Most Economical</div></div><span class="mb f">2 CR</span></div>
         <div class="mo" data-m="gemini-2.5-pro-preview-03-25" data-p="gemini" data-c="3" data-n="Gemini 2.5 Pro" data-t="s" onclick="selModel(this)"><div class="mi g">G</div><div><div class="mo-n">Gemini 2.5 Pro</div><div class="mo-s">Most intelligent</div></div><span class="mb s">3 CR</span></div>
-        <div class="mo" data-m="gemini-1.5-flash" data-p="gemini" data-c="0" data-n="Gemini 1.5 Flash" data-t="f" onclick="selModel(this)"><div class="mi g">G</div><div><div class="mo-n">Gemini 1.5 Flash</div><div class="mo-s">Lightweight · Efficient</div></div><span class="mb f">FREE</span></div>
+        <div class="mo" data-m="gemini-1.5-flash" data-p="gemini" data-c="0" data-n="Gemini 1.5 Flash" data-t="f" onclick="selModel(this)"><div class="mi g">G</div><div><div class="mo-n">Gemini 1.5 Flash</div><div class="mo-s">Fast · Most Economical</div></div><span class="mb f">FREE</span></div>
         <div class="mo" data-m="gemini-1.5-pro" data-p="gemini" data-c="2" data-n="Gemini 1.5 Pro" data-t="s" onclick="selModel(this)"><div class="mi g">G</div><div><div class="mo-n">Gemini 1.5 Pro</div><div class="mo-s">Powerful · Multimodal</div></div><span class="mb s">2 CR</span></div>
         <div class="mg">◆ Anthropic Claude</div>
         <div class="mo" data-m="claude-haiku-4-5-20251001" data-p="claude" data-c="0" data-n="Claude Haiku 4.5" data-t="f" onclick="selModel(this)"><div class="mi c">C</div><div><div class="mo-n">Claude Haiku 4.5</div><div class="mo-s">Fast · Light</div></div><span class="mb f">FREE</span></div>
@@ -643,7 +644,7 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
 const K = {
   claude: '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',
   openai: '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',
-  gemini: 'AIzaSyChga3ZG5a3I3kaO0C7UWB761NgsysJ734'
+  gemini: 'AIzaSyAfjVUulN_c9h2R7KmgYCcXpu_wITgLmvE'
 };
 
 // UNLIMITED credit users (by Roblox username)
@@ -1081,7 +1082,7 @@ async function callGemini(model, img) {
     if (l.role==='user') l.parts.push({inline_data:{mime_type:img.split(';')[0].split(':')[1],data:img.split(',')[1]}});
   }
   const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${K.gemini}`,{
-    method:'POST',headers:{'Content-Type':'application/json', 'X-goog-api-key':'${K.gemini}'},
+    method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({contents,systemInstruction:{parts:[{text:SYS}]},generationConfig:{maxOutputTokens:8192,temperature:.7}})
   });
   if (!r.ok) { const e=await r.json().catch(()=>({})); throw new Error(e.error?.message||`Gemini error ${r.status}`); }
