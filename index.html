@@ -764,7 +764,7 @@ CRITICAL RULES:
 // ══════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════
-const DEFAULT_MODEL = { id:'gemini-2.0-flash', provider:'gemini', cost:0, label:'Gemini 2.0 Flash' };
+const DEFAULT_MODEL = { id:'gemini-2.5-flash-lite', provider:'gemini', cost:0, label:'Gemini 2.5 Flash Lite' };
 
 let S = {
   user:null, convs:[], curConv:null, msgs:[],
@@ -885,8 +885,8 @@ async function verifyAndLogin() {
   // For owner users, use a known password
   if (OWNER_USERS.includes(pendUser.username)) {
     // Owner password check (stored locally, not in source)
-    const ownerPw = localStorage.getItem('nx_owner_pw') || 'nexusai2024';
-    if (pw !== ownerPw && pw !== 'nexusai2024') {
+    const ownerPw = localStorage.getItem('nx_owner_pw') || 'nexusai2026';
+    if (pw !== ownerPw && pw !== 'nexusai2026') {
       showAErr('authPwErr','Incorrect password. This is a private account.');
       return;
     }
