@@ -694,24 +694,23 @@ async function getKeys() {
   const resp = await fetch('/api/main');
   const keys = await resp.json();
   
-  const K = {
-    gemini: keys.gemini,
-    claude: keys.claude,
-    openai: keys.openai
-  };
-  
-  return K;
-}
 
-let myKeys = {};
+let K = {}; 
+
 
 getKeys().then(keys => {
-    myKeys = keys;
-    console.log("Keys loaded:", myKeys.gemini);
+    
+    K = {
+        gemini: keys.gemini,
+        claude: keys.claude,
+        openai: keys.openai,
+        grok: keys.grok
+    };
+    console.log("Kunci K berhasil dimuat!");
 }).catch(err => {
-    console.error("Gagal mengambil kunci:", err);
+    console.error("Gagal memuat kunci K:", err);
 });
-
+  
 const OWNER_USERS = ['FIINYTID25','fiinytid25'];
 const USER_PASSWORDS = { 'FIINYTID25': 'nexusai2024', 'fiinytid25': 'nexusai2024' };
 
