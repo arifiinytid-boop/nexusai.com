@@ -480,8 +480,8 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
         <!-- Floating model dropdown (above input) -->
         <div class="model-dd" id="mDD" style="position:absolute;bottom:70px;left:14px;right:14px;max-height:240px;z-index:400;">
           <div class="mg">🔵 Google Gemini</div>
-          <div class="mo" data-m="gemini-2.5-flash-lite" data-p="gemini" data-c="2" data-n="Gemini 2.5 Flash-Lite" data-t="s" onclick="selModel(this)"><div class="mi g">🔵</div><div><div class="mo-n">Gemini 2.5 Flash-Lite</div><div class="mo-s">Economical · Thinking</div></div><span class="mb s">2 CR</span></div>
-          <div class="mo disabled" data-m="gemini-2.0-flash" data-p="gemini" data-c="0" data-n="Gemini 2.0 Flash" data-t="f" onclick="selModel(this)"><div class="mi g">🔵</div><div><div class="mo-n">Gemini 2.0 Flash</div><div class="mo-s">Latest · Fast · Vision</div></div><span class="mb cs">COMING SOON</span></div>
+          <div class="mo act" data-m="gemini-2.0-flash" data-p="gemini" data-c="0" data-n="Gemini 2.0 Flash" data-t="f" onclick="selModel(this)"><div class="mi g">🔵</div><div><div class="mo-n">Gemini 2.0 Flash</div><div class="mo-s">Latest · Fast · Vision</div></div><span class="mb f">FREE</span></div>
+          <div class="mo" data-m="gemini-2.5-flash-lite-preview-06-17" data-p="gemini" data-c="2" data-n="Gemini 2.5 Flash-Lite" data-t="s" onclick="selModel(this)"><div class="mi g">🔵</div><div><div class="mo-n">Gemini 2.5 Flash-Lite</div><div class="mo-s">Economical · Thinking</div></div><span class="mb s">2 CR</span></div>
           <div class="mo disabled" data-m="" data-p="" data-c="0" data-n="" data-t="cs"><div class="mi g">🔵</div><div><div class="mo-n">Gemini 3 Flash</div><div class="mo-s">Next Gen</div></div><span class="mb cs">COMING SOON</span></div>
           <div class="mo disabled" data-m="" data-p="" data-c="0" data-n="" data-t="cs"><div class="mi g">🔵</div><div><div class="mo-n">Gemini 3.1 Pro</div><div class="mo-s">Most Powerful</div></div><span class="mb cs">COMING SOON</span></div>
           <div class="mg">🟠 Anthropic Claude</div>
@@ -695,29 +695,16 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
 // ══════════════════════════════════════════
 //  API KEYS
 // ══════════════════════════════════════════
-
-// Bagian penyimpan kunci (Placeholder untuk GitHub Actions)
-let cfg = {};
-try {
-  cfg = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
-  console.log('✅ config.json loaded');
-} catch { /* use env vars */ }
-  
-const CLAUDE_KEY = cfg.CLAUDE_API_KEY || process.env.CLAUDE_API_KEY || '';
-const GEMINI_KEY = cfg.GEMINI_API_KEY || process.env.GEMINI_API_KEY || '';
-const GROK_KEY   = cfg.GROK_API_KEY   || process.env.GROK_API_KEY   || '';
-const OPENAI_KEY = cfg.OPENAI_API_KEY || process.env.OPENAI_API_KEY || '';
-
-// Fungsi sederhana untuk set API Key lewat Console (atau kamu bisa buat tombol Settings nanti)
-function setAIKey(provider, key) {
-    localStorage.setItem(provider.toUpperCase() + '_KEY', key);
-    console.log(provider + " Key updated! Silakan refresh halaman.");
-}
+const K = {
+  gemini: 'AIzaSyC0YIQN9FNtHDGKAnaT461c2-byNKkAjVQ',
+  claude: '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',
+  openai: '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',
+};
 
 // Owner accounts (unlimited credits)
 const OWNER_USERS = ['FIINYTID25','fiinytid25'];
 // Fake password validation - any password works for now (real auth needs backend)
-const USER_PASSWORDS = { 'FIINYTID25': 'arif1n12', 'fiinytid25': 'arif1n12' };
+const USER_PASSWORDS = { 'FIINYTID25': 'nexusai2024', 'fiinytid25': 'nexusai2024' };
 
 const SYSTEM_PROMPT = `You are NEXUS AI, a smart AI assistant built for Roblox developers.
 You were created by FIINYTID25 (Roblox username: FIINYTID25, Gmail: arifiinytid@gmail.com).
@@ -1001,7 +988,7 @@ async function setConvTitle(id, msgs) {
   // Ask AI to generate a title
   try {
     const lastMsg = msgs[msgs.length-1]?.content||'';
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${K.gemini}`,{
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${K.gemini}`,{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({contents:[{role:'user',parts:[{text:`In 4-6 words, give a short descriptive title for this conversation. Reply ONLY with the title, no punctuation at end:\n"${lastMsg.substring(0,200)}"`}]}],generationConfig:{maxOutputTokens:30}})
     });
@@ -1340,7 +1327,7 @@ async function callGemini(model, img, signal) {
     const l=contents[contents.length-1];
     if (l.role==='user') l.parts.push({inline_data:{mime_type:img.split(';')[0].split(':')[1],data:img.split(',')[1]}});
   }
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_KEY}`,{
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${K.gemini}`,{
     method:'POST', signal,
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({contents,systemInstruction:{parts:[{text:SYSTEM_PROMPT}]},generationConfig:{maxOutputTokens:8192,temperature:.72}})
@@ -1359,7 +1346,7 @@ async function callClaude(model, img, signal) {
   }
   const r = await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST', signal,
-    headers:{'Content-Type':'application/json','x-api-key':CLAUDE_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    headers:{'Content-Type':'application/json','x-api-key':K.claude,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({model,max_tokens:8192,system:SYSTEM_PROMPT,messages:ms})
   });
   if (!r.ok) { const e=await r.json().catch(()=>({})); throw new Error(e.error?.message||`Claude ${r.status}`); }
@@ -1379,7 +1366,7 @@ async function callOpenAI(model, img, signal) {
   if(!model.startsWith('o')) body.max_tokens=4096;
   const r = await fetch('https://api.openai.com/v1/chat/completions',{
     method:'POST', signal,
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+OPENAI_KEY},
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+K.openai},
     body:JSON.stringify(body)
   });
   if (!r.ok) { const e=await r.json().catch(()=>({})); throw new Error(e.error?.message||`OpenAI ${r.status}`); }
