@@ -695,11 +695,19 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
 // ══════════════════════════════════════════
 //  API KEYS
 // ══════════════════════════════════════════
+
+// Mengambil API Key dari penyimpanan browser (LocalStorage)
 const K = {
-  gemini: 'AIzaSyC0YIQN9FNtHDGKAnaT461c2-byNKkAjVQ',
-  claude: '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',
-  openai: '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',
+    gemini: localStorage.getItem('GEMINI_KEY') || '',
+    claude: localStorage.getItem('CLAUDE_KEY') || '',
+    openai: localStorage.getItem('OPENAI_KEY') || ''
 };
+
+// Fungsi sederhana untuk set API Key lewat Console (atau kamu bisa buat tombol Settings nanti)
+function setAIKey(provider, key) {
+    localStorage.setItem(provider.toUpperCase() + '_KEY', key);
+    console.log(provider + " Key updated! Silakan refresh halaman.");
+}
 
 // Owner accounts (unlimited credits)
 const OWNER_USERS = ['FIINYTID25','fiinytid25'];
