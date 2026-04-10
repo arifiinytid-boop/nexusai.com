@@ -4,8 +4,6 @@ export default function handler(req, res) {
     claude: process.env.CLAUDE_API_KEY,
     openai: process.env.OPENAI_API_KEY,
     grok: process.env.GROK_API_KEY,
-    deepseek: process.env.DEEPSEEK_KEY,
-    mistral : process.env.MISTRAL_KEY,
     version : '3.5',
   });
 }
