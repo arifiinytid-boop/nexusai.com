@@ -690,6 +690,49 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
 </div>
 
 <script>
+
+// NexusWebControl.js - Dibuat untuk FIINYTID25
+const API_URL = "/api/control";
+
+// Fungsi mengirim perintah (Map, GUI, Script)
+async function sendNexusCommand(action, details = {}) {
+    console.log(`Sending action: ${action} to Roblox...`);
+    await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            action: action,
+            name: details.name || "NexusObj",
+            color: details.color || [255, 255, 255],
+            code: details.code || ""
+        })
+    });
+}
+
+// Fungsi mengambil Log Console dari Roblox
+async function refreshRobloxLogs() {
+    try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        
+        console.clear();
+        console.log("%c--- ROBLOX CONSOLE LOGS ---", "color: #00d2ff; font-weight: bold;");
+        data.logs.forEach(log => {
+            const color = log.level === "Error" ? "color: #ff4b2b" : "color: #00ff88";
+            console.log(`%c[${log.time}] [${log.level}]: ${log.msg}`, color);
+        });
+    } catch (e) {
+        console.error("Gagal mengambil log:", e);
+    }
+}
+
+// Jalankan refresh log setiap 3 detik
+setInterval(refreshRobloxLogs, 3000);
+
+// CONTOH CARA PAKAI (Bisa dipanggil dari console browser atau tombol):
+// sendNexusCommand('create_part', {name: 'WebPart', color: [255,0,0]});
+// sendNexusCommand('inject_script', {code: 'print("Script dari Web!")'});
+  
 // ═══════════════════════════════════════
 //  MARKED.JS WRAPPER
 // ═══════════════════════════════════════
