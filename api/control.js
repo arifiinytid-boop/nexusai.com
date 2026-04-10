@@ -1,55 +1,92 @@
-// api/control.js - NEXUS AI Command Center for FIINYTID25
-let currentCommand = { action: "none", name: "", color: [255, 255, 255], code: "" };
+/**
+ * api/control.js - NEXUS AI Command Center for FIINYTID25
+ * Alamat Cloud: https://nexusai-com.vercel.app/api/control
+ * * Deskripsi: Menangani sinkronisasi antara Web Dashboard dan Plugin Roblox Studio.
+ */
+
+let currentCommand = { 
+    action: "none", 
+    name: "", 
+    color: [255, 255, 255], 
+    code: "", 
+    timestamp: Date.now() 
+};
 
 export default function handler(req, res) {
-    // Header agar bisa diakses dari mana saja
+    // ═══════════════════════════════════════
+    //  KONFIGURASI CORS (Penting untuk Roblox)
+    // ═══════════════════════════════════════
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
 
-    // 1. MENERIMA PERINTAH (Dari Web atau Plugin)
+    // ═══════════════════════════════════════
+    //  1. MENERIMA PERINTAH (POST)
+    // ═══════════════════════════════════════
     if (req.method === 'POST') {
         const data = req.body;
 
-        // Jika Plugin mengirim sinyal reset setelah eksekusi
+        // Reset Server jika Plugin mengirim sinyal 'none' setelah eksekusi
         if (data.action === "none") {
-            currentCommand = { action: "none" };
-            return res.status(200).json({ status: "Server Reset" });
+            currentCommand = { action: "none", timestamp: Date.now() };
+            return res.status(200).json({ status: "Server Reset", message: "Siap menerima perintah baru!" });
         }
 
-        // LOGIKA PEMROSESAN PERINTAH AI
+        // PRIORITAS UTAMA: Injeksi Script Langsung dari Gemini (Hasil sendCommand)
+        if (data.action === "inject_script" && data.code) {
+            currentCommand = {
+                action: "inject_script",
+                code: data.code,
+                timestamp: Date.now()
+            };
+            return res.status(200).json({ 
+                status: "Success", 
+                message: "Script dari Gemini berhasil di-upload ke Cloud!", 
+                data: currentCommand 
+            });
+        }
+
+        // LOGIKA CADANGAN (Jika user mengirim pesan tanpa lewat sistem Gemini)
         const prompt = data.msg ? data.msg.toLowerCase() : "";
         
         if (prompt.includes("part") || prompt.includes("objek")) {
             currentCommand = {
                 action: "create_part",
-                name: "Nexus_Generated_Obj",
-                color: [Math.random()*255, Math.random()*255, Math.random()*255]
+                name: "Nexus_Object_" + Math.floor(Math.random() * 1000),
+                color: [Math.random() * 255, Math.random() * 255, Math.random() * 255],
+                timestamp: Date.now()
             };
-        } else if (prompt.includes("hapus") || prompt.includes("bersihkan")) {
-            currentCommand = { action: "clear_workspace" };
-        } else if (prompt.includes("script") || prompt.includes("sistem") || prompt.includes("buatkan")) {
-            // AI akan mencoba membuatkan script berdasarkan prompt
+        } else if (prompt.includes("hapus") || prompt.includes("bersihkan") || prompt.includes("clear")) {
+            currentCommand = { 
+                action: "clear_workspace",
+                timestamp: Date.now()
+            };
+        } else if (prompt !== "") {
+            // Default jika ada pesan masuk tapi tidak terdeteksi keyword
             currentCommand = {
                 action: "inject_script",
-                code: `-- Script otomatis untuk FIINYTID25\n-- Prompt: ${prompt}\n\nprint("NEXUS AI: Menjalankan sistem ${prompt}...")\n` + 
-                      (prompt.includes("day") ? "game.Lighting.ClockTime = 14" : "print('Sistem Aktif!')")
-            };
-        } else {
-            // Jika perintah bebas, kirim sebagai script print
-            currentCommand = {
-                action: "inject_script",
-                code: `warn("NEXUS AI menerima pesan: ${prompt}")`
+                code: `warn("[NEXUS CLOUD]: Perintah diterima: ${prompt}")`,
+                timestamp: Date.now()
             };
         }
 
-        return res.status(200).json({ message: "Perintah diterima oleh Cloud!", data: currentCommand });
+        return res.status(200).json({ 
+            status: "Success", 
+            message: "Perintah diproses oleh Cloud!", 
+            data: currentCommand 
+        });
     }
 
-    // 2. MENGIRIM PERINTAH KE ROBLOX (GET Polling)
+    // ═══════════════════════════════════════
+    //  2. MENGIRIM KE ROBLOX (GET Polling)
+    // ═══════════════════════════════════════
     if (req.method === 'GET') {
+        // Mengirimkan perintah yang sedang aktif saat ini ke Plugin Roblox
         return res.status(200).json(currentCommand);
     }
+
+    // Jika method tidak dikenal
+    return res.status(405).json({ error: "Method not allowed" });
 }
