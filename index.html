@@ -807,7 +807,7 @@ async function sendToStudio(promptOverride) {
       body: JSON.stringify({
         type:  'prompt',
         msg:   prompt,
-        model: 'claude',
+        model: '+model+',
         user:  SESSION ? SESSION.user.username : 'FIINYTID25'
       })
     });
@@ -846,7 +846,7 @@ async function sendCodeToStudio(code, btnEl) {
       body: JSON.stringify({
         type:  'prompt',
         msg:   prompt,
-        model: 'claude',
+        model: '+model+',
         user:  SESSION ? SESSION.user.username : 'FIINYTID25'
       })
     });
@@ -881,7 +881,7 @@ async function sendMsgToStudio(msgId, btnEl) {
       body: JSON.stringify({
         type:  'prompt',
         msg:   text.substring(0, 2000),
-        model: 'claude',
+        model: '+model+',
         user:  SESSION ? SESSION.user.username : 'FIINYTID25'
       })
     });
