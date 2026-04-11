@@ -1,6 +1,5 @@
-// api/report.js — NEXUS AI Report Handler
+// api/report.js — NEXUS AI Report Handler v2
 // Stores reports in /tmp and optionally emails via Resend
-
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 
 const REPORT_FILE = '/tmp/nexus_reports.json';
@@ -8,7 +7,7 @@ const REPORT_FILE = '/tmp/nexus_reports.json';
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // GET reports (admin only)
@@ -21,9 +20,9 @@ export default async function handler(req, res) {
       const reports = existsSync(REPORT_FILE)
         ? JSON.parse(readFileSync(REPORT_FILE, 'utf8'))
         : [];
-      return res.status(200).json({ reports });
+      return res.status(200).json({ reports, total: reports.length });
     } catch (_) {
-      return res.status(200).json({ reports: [] });
+      return res.status(200).json({ reports: [], total: 0 });
     }
   }
 
@@ -36,15 +35,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'from and message required' });
     }
 
-    // Save to /tmp
     const report = {
-      id: Date.now().toString(36),
-      from: String(from).substring(0, 50),
-      userId: userId || '0',
+      id:      Date.now().toString(36),
+      from:    String(from).substring(0, 50),
+      userId:  userId || '0',
       message: String(message).substring(0, 2000),
-      plan: plan || 'free',
+      plan:    plan || 'free',
       credits: credits || 0,
-      time: time || new Date().toISOString(),
+      time:    time || new Date().toISOString(),
       savedAt: Date.now()
     };
 
@@ -60,25 +58,30 @@ export default async function handler(req, res) {
       console.error('Failed to save report:', e.message);
     }
 
-    // Optional: send email via Resend if configured
+    // Optional: send email via Resend
     const resendKey = process.env.RESEND_API_KEY;
     if (resendKey) {
       try {
         await fetch('https://api.resend.com/emails', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendKey}` },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${resendKey}`
+          },
           body: JSON.stringify({
             from: 'NEXUS AI <reports@nexusai.com>',
             to: ['arifiinytid@gmail.com'],
             subject: `[NEXUS AI Report] from ${from}`,
             html: `
-              <h2>New Report from NEXUS AI</h2>
+              <h2 style="color:#00e5ff;">New Report — NEXUS AI</h2>
               <p><strong>User:</strong> ${from} (ID: ${userId})</p>
               <p><strong>Plan:</strong> ${plan} | <strong>Credits:</strong> ${credits}</p>
               <p><strong>Time:</strong> ${time}</p>
               <hr>
               <p><strong>Message:</strong></p>
-              <p>${String(message).replace(/\n/g, '<br>')}</p>
+              <p style="background:#0a0b22;color:#b8cfff;padding:10px;border-radius:8px;">
+                ${String(message).replace(/\n/g, '<br>')}
+              </p>
             `
           })
         });
