@@ -62,32 +62,44 @@ export default async function handler(req, res) {
     const resendKey = process.env.RESEND_API_KEY;
     if (resendKey) {
       try {
-        await fetch('https://api.resend.com/emails', {
+        const emailResp = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${resendKey}`
           },
           body: JSON.stringify({
-            from: 'NEXUS AI <reports@nexusai.com>',
+            from: 'onboarding@resend.dev',
             to: ['arifiinytid@gmail.com'],
-            subject: `[NEXUS AI Report] from ${from}`,
+            subject: `[NEXUS AI Report] dari ${from}`,
             html: `
-              <h2 style="color:#00e5ff;">New Report — NEXUS AI</h2>
-              <p><strong>User:</strong> ${from} (ID: ${userId})</p>
-              <p><strong>Plan:</strong> ${plan} | <strong>Credits:</strong> ${credits}</p>
-              <p><strong>Time:</strong> ${time}</p>
-              <hr>
-              <p><strong>Message:</strong></p>
-              <p style="background:#0a0b22;color:#b8cfff;padding:10px;border-radius:8px;">
-                ${String(message).replace(/\n/g, '<br>')}
-              </p>
+              <div style="font-family:monospace;background:#030312;color:#b8cfff;padding:24px;border-radius:12px;">
+                <h2 style="color:#00e5ff;margin-bottom:16px;">📩 Report Baru — NEXUS AI</h2>
+                <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+                  <tr><td style="padding:6px;color:#3a4a7a;width:120px;">User</td><td style="padding:6px;color:white;font-weight:bold;">${from}</td></tr>
+                  <tr><td style="padding:6px;color:#3a4a7a;">User ID</td><td style="padding:6px;color:white;">${userId}</td></tr>
+                  <tr><td style="padding:6px;color:#3a4a7a;">Plan</td><td style="padding:6px;color:#00ffaa;">${plan}</td></tr>
+                  <tr><td style="padding:6px;color:#3a4a7a;">Credits</td><td style="padding:6px;color:#ffd600;">${credits}</td></tr>
+                  <tr><td style="padding:6px;color:#3a4a7a;">Waktu</td><td style="padding:6px;color:white;">${time}</td></tr>
+                </table>
+                <div style="background:#06071a;border:1px solid #3a4a7a;border-radius:8px;padding:14px;">
+                  <div style="color:#00e5ff;font-size:12px;margin-bottom:8px;">PESAN:</div>
+                  <div style="color:#b8cfff;line-height:1.7;">${String(message).replace(/\n/g, '<br>')}</div>
+                </div>
+                <div style="margin-top:16px;font-size:11px;color:#3a4a7a;">Dikirim oleh NEXUS AI Report System</div>
+              </div>
             `
           })
         });
+        if (!emailResp.ok) {
+          const errData = await emailResp.json().catch(() => ({}));
+          console.error('Resend error:', errData);
+        }
       } catch (emailErr) {
-        console.error('Email failed (non-critical):', emailErr.message);
+        console.error('Email failed:', emailErr.message);
       }
+    } else {
+      console.warn('RESEND_API_KEY tidak diset di environment variables Vercel!');
     }
 
     return res.status(200).json({ status: 'ok', id: report.id });
