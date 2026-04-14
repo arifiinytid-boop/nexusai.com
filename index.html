@@ -629,38 +629,35 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
 // ═══════════════════════════════════════
 //  MODEL LIST (shared between chat & GUI builder)
 // ═══════════════════════════════════════
+// Active models: gemini-2.5-flash-lite, gemini-2.5-flash, gemini-3-flash-preview
+// All others: COMING SOON (disabled)
 var MODEL_LIST = [
   {group:'Google Gemini'},
-  {id:'gemini-2.0-flash',prov:'gemini',cost:0,label:'Gemini 2.0 Flash',sub:'Stable · Fast · Vision',icon:'icon/gemini.png'},
   {id:'gemini-2.5-flash-lite',prov:'gemini',cost:1,label:'Gemini 2.5 Flash Lite',sub:'Fast · Thinking',icon:'icon/gemini.png'},
   {id:'gemini-2.5-flash',prov:'gemini',cost:2,label:'Gemini 2.5 Flash',sub:'Smart · Thinking',icon:'icon/gemini.png'},
-  {id:'gemini-2.5-pro',prov:'gemini',cost:5,label:'Gemini 2.5 Pro',sub:'Most Capable Google',icon:'icon/gemini.png'},
-  {id:'gemini-3-flash-preview',prov:'gemini',cost:7,label:'Gemini 3 Flash',sub:'Extra Fast · Thinking',icon:'icon/gemini.png'},
-  {id:'gemini-3.1-flash-lite-preview',prov:'gemini',cost:6,label:'Gemini 3.1 Flash Lite',sub:'Preview · Thinking',icon:'icon/gemini.png'},
-  {id:'gemini-3.1-pro-preview',prov:'gemini',cost:12,label:'Gemini 3.1 Pro',sub:'Pro · Super Capable',icon:'icon/gemini.png'},
-  {group:'Meta Llama (Free)'},
-  {id:'meta-llama/llama-3.3-70b-instruct:free',prov:'openrouter',cost:0,label:'Llama 3.3 70B',sub:'Meta · Fast',icon:'icon/meta.png'},
-  {id:'meta-llama/llama-4-scout',prov:'openrouter',cost:0,label:'Llama 4 Scout',sub:'Latest Meta',icon:'icon/meta.png'},
-  {id:'meta-llama/llama-4-maverick',prov:'openrouter',cost:0,label:'Llama 4 Maverick',sub:'Meta · Vision · Free',icon:'icon/meta.png'},
+  {id:'gemini-3-flash-preview',prov:'gemini',cost:3,label:'Gemini 3 Flash',sub:'Extra Fast · Thinking',icon:'icon/gemini.png'},
+  {id:'gemini-2.5-pro',prov:'gemini',cost:5,label:'Gemini 2.5 Pro',sub:'Coming Soon',icon:'icon/gemini.png',soon:true},
+  {id:'gemini-3.1-pro-preview',prov:'gemini',cost:12,label:'Gemini 3.1 Pro',sub:'Coming Soon',icon:'icon/gemini.png',soon:true},
+  {group:'Meta Llama'},
+  {id:'meta-llama/llama-4-maverick:free',prov:'openrouter',cost:0,label:'Llama 4 Maverick',sub:'Coming Soon',icon:'icon/meta.png',soon:true},
+  {id:'meta-llama/llama-4-scout:free',prov:'openrouter',cost:0,label:'Llama 4 Scout',sub:'Coming Soon',icon:'icon/meta.png',soon:true},
   {group:'xAI Grok'},
-  {id:'x-ai/grok-3-mini-beta',prov:'openrouter',cost:1,label:'Grok 3 Mini',sub:'xAI · Fast · Reasoning',icon:'icon/grok.png'},
-  {id:'x-ai/grok-3-beta',prov:'openrouter',cost:4,label:'Grok 3',sub:'xAI · Powerful',icon:'icon/grok.png'},
+  {id:'x-ai/grok-3-mini-beta',prov:'openrouter',cost:1,label:'Grok 3 Mini',sub:'Coming Soon',icon:'icon/grok.png',soon:true},
+  {id:'x-ai/grok-3-beta',prov:'openrouter',cost:4,label:'Grok 3',sub:'Coming Soon',icon:'icon/grok.png',soon:true},
   {group:'Anthropic Claude'},
-  {id:'claude-haiku-4-5',prov:'claude',cost:3,label:'Claude Haiku 4.5',sub:'Fast · Smart',icon:'icon/claude.png'},
-  {id:'claude-sonnet-4-6',prov:'claude',cost:7,label:'Claude Sonnet 4.6',sub:'Powerful · Vision',icon:'icon/claude.png'},
+  {id:'claude-haiku-4-5',prov:'claude',cost:3,label:'Claude Haiku 4.5',sub:'Coming Soon',icon:'icon/claude.png',soon:true},
+  {id:'claude-sonnet-4-6',prov:'claude',cost:7,label:'Claude Sonnet 4.6',sub:'Coming Soon',icon:'icon/claude.png',soon:true},
   {group:'OpenAI ChatGPT'},
-  {id:'gpt-4o-mini',prov:'openai',cost:0,label:'GPT-4o Mini',sub:'Fast · Economical',icon:'icon/chatgpt.png'},
-  {id:'gpt-4o',prov:'openai',cost:3,label:'GPT-4o',sub:'Vision · Powerful',icon:'icon/chatgpt.png'},
-  {id:'o4-mini',prov:'openai',cost:4,label:'o4 Mini',sub:'Reasoning · Latest',icon:'icon/chatgpt.png'},
-  {id:'gpt-4.1',prov:'openai',cost:5,label:'GPT-4.1',sub:'Latest · Most Capable',icon:'icon/chatgpt.png'},
-  {group:'DeepSeek (Free)'},
-  {id:'deepseek/deepseek-r1:free',prov:'openrouter',cost:0,label:'DeepSeek R1',sub:'Reasoning · Free',icon:null,iconText:'DS',iconBg:'#2563eb'},
-  {id:'deepseek/deepseek-chat-v3-0324:free',prov:'openrouter',cost:0,label:'DeepSeek V3',sub:'Chat · Free',icon:null,iconText:'DS',iconBg:'#2563eb'},
+  {id:'gpt-4o-mini',prov:'openai',cost:0,label:'GPT-4o Mini',sub:'Coming Soon',icon:'icon/chatgpt.png',soon:true},
+  {id:'gpt-4o',prov:'openai',cost:3,label:'GPT-4o',sub:'Coming Soon',icon:'icon/chatgpt.png',soon:true},
+  {id:'gpt-4.1',prov:'openai',cost:5,label:'GPT-4.1',sub:'Coming Soon',icon:'icon/chatgpt.png',soon:true},
+  {group:'DeepSeek'},
+  {id:'deepseek/deepseek-r1:free',prov:'openrouter',cost:0,label:'DeepSeek R1',sub:'Coming Soon',icon:null,iconText:'DS',iconBg:'#2563eb',soon:true},
 ];
 
 // Build model dropdown HTML
-function buildModelDDHtml(activeId, prefix) {
-  prefix = prefix || '';
+// forGui=true → calls selGuiModel, false → calls selModel
+function buildModelDDHtml(activeId, forGui) {
   var html = '';
   MODEL_LIST.forEach(function(m) {
     if (m.group) {
@@ -668,14 +665,23 @@ function buildModelDDHtml(activeId, prefix) {
     } else {
       var iconHtml = m.icon
         ? '<div class="mo-icon"><img src="'+m.icon+'" alt=""></div>'
-        : '<div class="mo-icon" style="background:'+m.iconBg+';color:white;font-size:8px;font-weight:700;">'+m.iconText+'</div>';
-      var badgeCls = m.cost===0?'f':'s';
-      var badgeTxt = m.cost===0?'FREE':m.cost+' CR';
+        : '<div class="mo-icon" style="background:'+(m.iconBg||'#444')+';color:white;font-size:8px;font-weight:700;">'+(m.iconText||'AI')+'</div>';
       var actCls = m.id===activeId?' act':'';
-      html += '<div class="mo'+actCls+'" data-mid="'+m.id+'" data-prov="'+m.prov+'" data-cost="'+m.cost+'" data-label="'+m.label+'" onclick="selModel'+prefix+'(this)">'+
-        iconHtml+'<div><div class="mo-n">'+m.label+'</div><div class="mo-s">'+m.sub+'</div></div>'+
-        '<span class="mb '+badgeCls+'">'+badgeTxt+'</span>'+
-      '</div>';
+      if (m.soon) {
+        // COMING SOON — disabled, not clickable
+        html += '<div class="mo disabled" style="cursor:default;opacity:0.4;" title="Coming Soon">'+
+          iconHtml+'<div><div class="mo-n">'+m.label+'</div><div class="mo-s">Coming Soon</div></div>'+
+          '<span class="mb" style="background:rgba(255,214,0,.12);color:var(--yellow);font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;">SOON</span>'+
+        '</div>';
+      } else {
+        var badgeCls = m.cost===0?'f':'s';
+        var badgeTxt = m.cost===0?'FREE':m.cost+' CR';
+        var clickFn  = forGui ? 'selGuiModel' : 'selModel';
+        html += '<div class="mo'+actCls+'" data-mid="'+m.id+'" data-prov="'+m.prov+'" data-cost="'+m.cost+'" data-label="'+m.label+'" onclick="'+clickFn+'(this)">'+
+          iconHtml+'<div><div class="mo-n">'+m.label+'</div><div class="mo-s">'+m.sub+'</div></div>'+
+          '<span class="mb '+badgeCls+'">'+badgeTxt+'</span>'+
+        '</div>';
+      }
     }
   });
   return html;
@@ -809,15 +815,80 @@ function startStudioPoll() {
 //  LANGUAGE
 // ═══════════════════════════════════════
 var LANGS = {
-  id:{lang:'Bahasa Indonesia',placeholder:'Tanya NEXUS AI tentang Roblox...',noConv:'Belum ada percakapan',newChat:'Percakapan Baru',recent:'Riwayat Chat',welcome:'AI Roblox cerdas — tulis Lua, debug script, buat GUI. Connect plugin untuk kirim script langsung ke Studio!',aiLang:'Selalu balas dalam Bahasa Indonesia yang santai dan mudah dipahami.',clearConfirm:'Hapus semua pesan?',cancel:'Batal',steps:['Membaca konteks...','Merancang solusi...','Menulis kode...','Finalisasi...'],stepsGui:['Merancang GUI...','Menulis LocalScript...','Menyiapkan Events...','Finalisasi...'],stepsDebug:['Membaca script...','Mencari error...','Memperbaiki...','Verifikasi...'],stepsFast:['Menganalisis...','Memproses...','Menulis kode...','Selesai...']},
-  en:{lang:'English',placeholder:'Ask NEXUS AI about Roblox...',noConv:'No conversations yet',newChat:'New Conversation',recent:'Recent Chats',welcome:'Smart Roblox AI — write Lua, debug scripts, build GUIs. Connect plugin to send scripts directly to Studio!',aiLang:'Always respond in English.',clearConfirm:'Clear all messages?',cancel:'Cancel',steps:['Reading context...','Designing solution...','Writing code...','Finalizing...'],stepsGui:['Designing GUI...','Writing LocalScript...','Setting up Events...','Finalizing...'],stepsDebug:['Reading script...','Finding error...','Fixing code...','Verifying...'],stepsFast:['Analyzing...','Processing...','Writing code...','Done...']},
-  ja:{lang:'日本語',placeholder:'RobloxについてNEXUS AIに聞く...',noConv:'まだ会話がありません',newChat:'新しい会話',recent:'最近のチャット',welcome:'スマートRoblox AI',aiLang:'常に日本語で返答してください。',clearConfirm:'このチャットを削除しますか？',cancel:'キャンセル',steps:['コンテキストを読み込み...','解決策を設計...','コードを作成...','最終処理...'],stepsGui:['GUI設計...','LocalScript作成...','イベント設定...','最終処理...'],stepsDebug:['スクリプト読込...','エラー検索...','修正...','確認...'],stepsFast:['分析...','処理...','コード作成...','完了...']},
-  ko:{lang:'한국어',placeholder:'NEXUS AI에게 질문...',noConv:'아직 대화 없음',newChat:'새 대화',recent:'최근 채팅',welcome:'스마트 Roblox AI',aiLang:'항상 한국어로 답하세요.',clearConfirm:'모든 메시지를 삭제할까요?',cancel:'취소',steps:['컨텍스트 읽기...','솔루션 설계...','코드 작성...','마무리...'],stepsGui:['GUI 설계...','LocalScript 작성...','이벤트 설정...','마무리...'],stepsDebug:['스크립트 읽기...','오류 찾기...','수정...','확인...'],stepsFast:['분석...','처리...','코드 작성...','완료...']},
-  zh:{lang:'中文',placeholder:'向NEXUS AI提问...',noConv:'暂无对话',newChat:'新对话',recent:'最近聊天',welcome:'智能Roblox AI',aiLang:'请始终用中文回答。',clearConfirm:'清除所有消息？',cancel:'取消',steps:['读取上下文...','设计解决方案...','编写代码...','最终处理...'],stepsGui:['设计GUI...','编写LocalScript...','设置事件...','最终处理...'],stepsDebug:['读取脚本...','查找错误...','修复...','验证...'],stepsFast:['分析...','处理...','编写代码...','完成...']},
+  id:{
+    lang:'Bahasa Indonesia',placeholder:'Tanya NEXUS AI tentang Roblox...',noConv:'Belum ada percakapan',
+    newChat:'Percakapan Baru',recent:'Riwayat Chat',
+    welcome:'AI Roblox cerdas — tulis Lua, debug script, buat GUI. Connect plugin untuk kirim script langsung ke Studio!',
+    aiLang:'Selalu balas dalam Bahasa Indonesia yang santai dan mudah dipahami.',
+    clearConfirm:'Hapus semua pesan?',cancel:'Batal',
+    claimDaily:'Klaim Harian',studioOn:'Studio: ON',studioOff:'Studio: OFF',
+    pluginOff:'Plugin belum terhubung —',howToConnect:'Cara connect →',reconnect:'Reconnect',
+    steps:['Membaca konteks...','Merancang solusi...','Menulis kode...','Finalisasi...'],
+    stepsGui:['Merancang GUI...','Menulis LocalScript...','Menyiapkan Events...','Finalisasi...'],
+    stepsDebug:['Membaca script...','Mencari error...','Memperbaiki...','Verifikasi...'],
+    stepsFast:['Menganalisis...','Memproses...','Menulis kode...','Selesai...'],
+    suggTitles:['🎬 Loading Screen','🏪 Shop GUI','📊 Leaderboard','⚙️ Admin System'],
+  },
+  en:{
+    lang:'English',placeholder:'Ask NEXUS AI about Roblox...',noConv:'No conversations yet',
+    newChat:'New Conversation',recent:'Recent Chats',
+    welcome:'Smart Roblox AI — write Lua, debug scripts, build GUIs. Connect plugin to send scripts directly to Studio!',
+    aiLang:'Always respond in English.',
+    clearConfirm:'Clear all messages?',cancel:'Cancel',
+    claimDaily:'Claim Daily',studioOn:'Studio: ON',studioOff:'Studio: OFF',
+    pluginOff:'Plugin not connected —',howToConnect:'How to connect →',reconnect:'Reconnect',
+    steps:['Reading context...','Designing solution...','Writing code...','Finalizing...'],
+    stepsGui:['Designing GUI...','Writing LocalScript...','Setting up Events...','Finalizing...'],
+    stepsDebug:['Reading script...','Finding error...','Fixing code...','Verifying...'],
+    stepsFast:['Analyzing...','Processing...','Writing code...','Done...'],
+    suggTitles:['🎬 Loading Screen','🏪 Shop GUI','📊 Leaderboard','⚙️ Admin System'],
+  },
+  ja:{
+    lang:'日本語',placeholder:'RobloxについてNEXUS AIに聞く...',noConv:'まだ会話がありません',
+    newChat:'新しい会話',recent:'最近のチャット',
+    welcome:'スマートRoblox AI — Luaを書き、スクリプトをデバッグし、GUIを作成',
+    aiLang:'常に日本語で返答してください。',
+    clearConfirm:'このチャットを削除しますか？',cancel:'キャンセル',
+    claimDaily:'デイリー受け取る',studioOn:'Studio: ON',studioOff:'Studio: OFF',
+    pluginOff:'プラグイン未接続 —',howToConnect:'接続方法 →',reconnect:'再接続',
+    steps:['コンテキストを読み込み...','解決策を設計...','コードを作成...','最終処理...'],
+    stepsGui:['GUI設計...','LocalScript作成...','イベント設定...','最終処理...'],
+    stepsDebug:['スクリプト読込...','エラー検索...','修正...','確認...'],
+    stepsFast:['分析...','処理...','コード作成...','完了...'],
+    suggTitles:['🎬 ローディング画面','🏪 ショップGUI','📊 リーダーボード','⚙️ 管理システム'],
+  },
+  ko:{
+    lang:'한국어',placeholder:'NEXUS AI에게 질문...',noConv:'아직 대화 없음',
+    newChat:'새 대화',recent:'최근 채팅',
+    welcome:'스마트 Roblox AI — Lua 작성, 스크립트 디버그, GUI 제작',
+    aiLang:'항상 한국어로 답하세요.',
+    clearConfirm:'모든 메시지를 삭제할까요?',cancel:'취소',
+    claimDaily:'일일 수령',studioOn:'Studio: ON',studioOff:'Studio: OFF',
+    pluginOff:'플러그인 미연결 —',howToConnect:'연결 방법 →',reconnect:'재연결',
+    steps:['컨텍스트 읽기...','솔루션 설계...','코드 작성...','마무리...'],
+    stepsGui:['GUI 설계...','LocalScript 작성...','이벤트 설정...','마무리...'],
+    stepsDebug:['스크립트 읽기...','오류 찾기...','수정...','확인...'],
+    stepsFast:['분석...','처리...','코드 작성...','완료...'],
+    suggTitles:['🎬 로딩 스크린','🏪 상점 GUI','📊 리더보드','⚙️ 관리 시스템'],
+  },
+  zh:{
+    lang:'中文',placeholder:'向NEXUS AI提问...',noConv:'暂无对话',
+    newChat:'新对话',recent:'最近聊天',
+    welcome:'智能Roblox AI — 编写Lua、调试脚本、制作GUI',
+    aiLang:'请始终用中文回答。',
+    clearConfirm:'清除所有消息？',cancel:'取消',
+    claimDaily:'领取每日积分',studioOn:'Studio: ON',studioOff:'Studio: OFF',
+    pluginOff:'插件未连接 —',howToConnect:'如何连接 →',reconnect:'重新连接',
+    steps:['读取上下文...','设计解决方案...','编写代码...','最终处理...'],
+    stepsGui:['设计GUI...','编写LocalScript...','设置事件...','最终处理...'],
+    stepsDebug:['读取脚本...','查找错误...','修复...','验证...'],
+    stepsFast:['分析...','处理...','编写代码...','完成...'],
+    suggTitles:['🎬 加载界面','🏪 商店GUI','📊 排行榜','⚙️ 管理系统'],
+  },
 };
 var curLang = 'id';
 
-function changeLang(l) { curLang=l; S.language=l; saveS(); applyLang(); toast('Bahasa: '+(LANGS[l]||LANGS.id).lang); }
+function changeLang(l) { curLang=l; S.language=l; saveS(); applyLang(); toast('Language: '+(LANGS[l]||LANGS.id).lang); }
 function applyLang() {
   var t=LANGS[curLang]||LANGS.id;
   var el=document.getElementById('inp'); if(el) el.placeholder=t.placeholder;
@@ -825,6 +896,28 @@ function applyLang() {
   var rl=document.getElementById('recentLbl'); if(rl) rl.textContent=t.recent;
   var wt=document.getElementById('welcomeText'); if(wt) wt.textContent=t.welcome;
   var ls=document.getElementById('langSelector'); if(ls) ls.value=curLang;
+  // Translate all static UI strings
+  var uiMap = t.ui || {};
+  Object.keys(uiMap).forEach(function(id){
+    var e=document.getElementById(id); if(e) e.textContent=uiMap[id];
+  });
+  // Translate suggestion cards
+  var suggs = document.querySelectorAll('.sugg strong');
+  var suggTexts = t.suggTitles || [];
+  suggs.forEach(function(s,i){ if(suggTexts[i]) s.textContent=suggTexts[i]; });
+  // Settings labels
+  function setTxt(id,v){var e=document.getElementById(id);if(e&&v)e.textContent=v;}
+  setTxt('claimDailyBtn', t.claimDaily || 'Claim Daily');
+  // Reconnect banner
+  var bt=document.getElementById('plugBannerTxt');
+  if(bt&&!studioConnected) bt.textContent=t.pluginOff||'Plugin not connected —';
+  // Studio badge
+  var stTxt=document.getElementById('studioTxt');
+  if(stTxt) stTxt.textContent=studioConnected?(t.studioOn||'Studio: ON'):(t.studioOff||'Studio: OFF');
+  // Buttons in plug banner
+  var plugLinks=document.querySelectorAll('.plug-banner a');
+  if(plugLinks[0]) plugLinks[0].textContent=t.howToConnect||'How to connect →';
+  if(plugLinks[1]) plugLinks[1].textContent=t.reconnect||'Reconnect';
   renderConvs();
 }
 
@@ -833,7 +926,7 @@ function applyLang() {
 // ═══════════════════════════════════════
 var S = {
   credits:30, convs:[], curConv:null, msgs:[],
-  model:{id:'gemini-2.0-flash',provider:'gemini',cost:0,label:'Gemini 2.0 Flash'},
+  model:{id:'gemini-2.5-flash-lite',provider:'gemini',cost:1,label:'Gemini 2.5 Flash Lite'},
   attachments:[], draftText:{}, draftAttach:{},
   lastClaim:null, plan:'free', language:'id', roles:[],
   cancelCtrl:null, gen:false, theme:'cyan',
@@ -874,17 +967,37 @@ async function loadS() {
 function saveS() {
   if (!SESSION) return;
   try {
+    // Trim conversations to avoid exceeding KV 5MB limit
+    var trimmedConvs = S.convs.slice(-10).map(function(c) {
+      return {
+        id: c.id, title: c.title, created: c.created,
+        msgs: (c.msgs||[]).slice(-15).map(function(m) {
+          return {
+            role: m.role,
+            content: typeof m.content === 'string' ? m.content.substring(0, 3000) : (m.content||''),
+            time: m.time,
+            model: m.model,
+            studioInjected: m.studioInjected,
+            injectSummary: m.injectSummary,
+            // Strip attachments (base64 images) from saved msgs — too large
+          };
+        })
+      };
+    });
     var d = {
-      credits: S.credits, convs: S.convs, lastClaim: S.lastClaim,
-      plan: S.plan, draftText: S.draftText, draftAttach: S.draftAttach,
+      credits: S.credits, convs: trimmedConvs, lastClaim: S.lastClaim,
+      plan: S.plan, draftText: {}, draftAttach: {},  // don't save drafts (can have large base64)
       model: S.model, language: S.language, roles: S.roles, theme: S.theme,
       avatar: SESSION.user.avatar,
       robloxId: SESSION.user.robloxId,
     };
-    SESSION.data = d;
-    localStorage.setItem('nexus_session', JSON.stringify(SESSION));
+    // Update in-memory S.convs to be the trimmed version
+    SESSION.data = Object.assign({}, d, {convs: S.convs}); // keep full convs in memory
+    // Save trimmed version locally
+    var localData = Object.assign({}, d, {convs: S.convs.slice(-10)});
+    localStorage.setItem('nexus_session', JSON.stringify(Object.assign({}, SESSION, {data: localData})));
     localStorage.setItem('nexus_lang', S.language);
-    // Async fire-and-forget to server
+    // Async fire-and-forget to server (with trimmed convs)
     fetch('/api/sync', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -1089,8 +1202,8 @@ async function initApp(){
   applyLang();
 
   // Build model dropdowns
-  document.getElementById('mDD').innerHTML = buildModelDDHtml(S.model.id, '');
-  document.getElementById('guiMDD').innerHTML = buildModelDDHtml(guiModel.id, 'Gui');
+  document.getElementById('mDD').innerHTML = buildModelDDHtml(S.model.id, false);
+  document.getElementById('guiMDD').innerHTML = buildModelDDHtml(guiModel.id, true);
 
   updateCreds();
   updateModelUI();
@@ -1240,6 +1353,7 @@ function toggleMDD(e){
   dd.classList.toggle('open');
 }
 function selModel(el){
+  if(el.classList.contains('disabled')) return;
   var mid=el.getAttribute('data-mid'),prov=el.getAttribute('data-prov');
   var cost=parseFloat(el.getAttribute('data-cost')||'0');
   var label=el.getAttribute('data-label')||mid;
@@ -1248,7 +1362,7 @@ function selModel(el){
   saveS(); updateModelUI();
   document.getElementById('mDD').classList.remove('open');
   // Rebuild with new active
-  document.getElementById('mDD').innerHTML=buildModelDDHtml(mid,'');
+  document.getElementById('mDD').innerHTML=buildModelDDHtml(mid,false);
 }
 function updateModelUI(){
   var m=S.model;
@@ -1266,7 +1380,7 @@ document.addEventListener('click',function(e){
 });
 
 // GUI Model
-var guiModel={id:'gemini-2.0-flash',provider:'gemini',cost:0,label:'Gemini 2.0 Flash'};
+var guiModel={id:'gemini-2.5-flash-lite',provider:'gemini',cost:1,label:'Gemini 2.5 Flash Lite'};
 function toggleGuiMDD(e){
   e.stopPropagation();
   var dd=document.getElementById('guiMDD');
@@ -1278,6 +1392,7 @@ function toggleGuiMDD(e){
   dd.classList.toggle('open');
 }
 function selGuiModel(el){
+  if(el.classList.contains('disabled')) return;
   var mid=el.getAttribute('data-mid'),prov=el.getAttribute('data-prov');
   var cost=parseFloat(el.getAttribute('data-cost')||'0');
   var label=el.getAttribute('data-label')||mid;
@@ -1289,7 +1404,7 @@ function selGuiModel(el){
   var badge=document.getElementById('guiMBadge');
   badge.textContent=cost===0?'FREE':cost+' CR';
   badge.style.color=cost===0?'var(--green)':'var(--cyan)';
-  document.getElementById('guiMDD').innerHTML=buildModelDDHtml(mid,'Gui');
+  document.getElementById('guiMDD').innerHTML=buildModelDDHtml(mid,true);
   document.getElementById('guiMDD').classList.remove('open');
   toast('GUI Model: '+label);
 }
@@ -1586,11 +1701,21 @@ async function send(){
   if(!isOwner()&&S.model.cost>0&&S.credits<S.model.cost){toast('Perlu '+S.model.cost+' CR untuk model ini. Saat ini: '+parseFloat(S.credits).toFixed(2)+' CR');openShop();return;}
 
   await loadKeys();
+
+  // CRITICAL: Ensure curConv exists in S.convs. If not, create a new one.
+  if(!S.curConv || !S.convs.find(function(x){return x.id===S.curConv;})){
+    var newC={id:Date.now()+'',title:'Untitled',msgs:[],created:Date.now()};
+    S.convs.push(newC); S.curConv=newC.id; S.msgs=newC.msgs;
+  }
+
   var sendConvId=S.curConv;
   var um={role:'user',content:txt,attachments:attachments,time:Date.now()};
-  S.msgs.push(um); appendMsg(um);
+  // Sync S.msgs with the conversation's msgs array
+  var sendConvRef=S.convs.find(function(x){return x.id===sendConvId;});
+  if(sendConvRef){ S.msgs=sendConvRef.msgs; S.msgs.push(um); }
+  else { S.msgs.push(um); }
+  appendMsg(um);
   document.getElementById('inp').value=''; document.getElementById('inp').style.height='auto';
-  delete S.draftText[S.curConv]; delete S.draftAttach[S.curConv];
   S.attachments=[]; renderAttachRow();
 
   S.gen=true;
@@ -1632,7 +1757,16 @@ async function send(){
 
     var am={role:'ai',content:displayContent,model:sendModel.label,time:Date.now(),studioInjected:studioInjected,injectSummary:injectSummary};
     var sendConv=S.convs.find(function(x){return x.id===sendConvId;});
-    if(sendConv){sendConv.msgs.push(am);if(S.curConv===sendConvId){S.msgs=sendConv.msgs;appendMsg(am);}}
+    if(sendConv){
+      if(S.msgs!==sendConv.msgs) sendConv.msgs=S.msgs; // ensure same reference
+      sendConv.msgs.push(am);
+      if(S.curConv===sendConvId){S.msgs=sendConv.msgs; appendMsg(am);}
+    } else {
+      // Conv not found — create it
+      var recovC={id:sendConvId,title:'Untitled',msgs:S.msgs,created:Date.now()};
+      S.convs.push(recovC);
+      S.msgs.push(am); appendMsg(am);
+    }
 
     // Deduct credits
     if(!isOwner()){
