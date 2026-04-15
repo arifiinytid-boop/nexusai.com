@@ -1125,11 +1125,11 @@ PENTING SAAT STUDIO CONNECTED:
 ⚠️ ATURAN KRITIS - OUTPUT HANYA LUA, BUKAN JSON:
 - JANGAN PERNAH output JSON commands atau structured data
 - JANGAN tulis format: {"command":"inject_script",...} atau apapun yang mirip JSON
-- SELALU output kode dalam ```lua ... ``` code block biasa
-- Sistem akan otomatis parse ```lua blocks dan inject ke Studio
+- SELALU output kode dalam lua ... code block biasa
+- Sistem akan otomatis parse lua blocks dan inject ke Studio
 
 CARA KERJA:
-1. Tulis kode Lua lengkap dalam ```lua ... ``` blocks
+1. Tulis kode Lua lengkap dalam lua ... blocks
 2. Sistem otomatis detect dan inject ke lokasi yang tepat
 3. Jelaskan APA yang sudah dimasukkan setelah kode
 
@@ -1139,12 +1139,12 @@ SETELAH KODE DIINJECT:
 - AI bertanggung jawab memasukkan SEMUA (server + client + modules + remotes)
 - User tinggal klik Play untuk test — semua sudah siap
 
-PENTING: Untuk GUI di Studio, SELALU buat ```lua LocalScript/Script yang membangun GUI via Instance.new() bukan JSON config. UIScale wajib ditambahkan untuk AutoScaled!
+PENTING: Untuk GUI di Studio, SELALU buat lua LocalScript/Script yang membangun GUI via Instance.new() bukan JSON config. UIScale wajib ditambahkan untuk AutoScaled!
 ` : `
 STUDIO BELUM TERHUBUNG. Kasih tahu user:
 "Untuk script langsung masuk ke Studio, klik NEXUS AI di toolbar Roblox Studio → CONNECT"
-Tetap berikan kode Lua LENGKAP dalam code block \`\`\`lua agar user bisa copy manual.
-`}
+Tetap berikan kode Lua LENGKAP dalam code block lua agar user bisa copy manual.
+
 
 ===== ATURAN GUI (Expert Level) =====
 WAJIB untuk semua GUI:
