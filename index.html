@@ -33,7 +33,7 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
 .sb-logo-text{font-family:'Orbitron',sans-serif;font-weight:900;font-size:12px;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .sb-logo-sub{font-size:8px;color:var(--dim);}
 .sb-user{padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--b);flex-shrink:0;}
-.sb-av{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--cyan2);object-fit:cover;background:var(--bg3);flex-shrink:0;}
+.sb-av{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--cyan2);object-fit:cover;background:var(--bg3);flex-shrink:0;transition:.2s;}.sb-av:hover{border-color:var(--cyan);transform:scale(1.1);}
 .sb-un{font-size:11px;color:white;font-weight:500;}
 .sb-role{font-size:9px;color:var(--dim);}
 .sb-gear{margin-left:auto;color:var(--dim);cursor:pointer;transition:.12s;flex-shrink:0;background:none;border:none;padding:2px;}
@@ -328,7 +328,7 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
       </div>
     </div>
     <div class="sb-user">
-      <img class="sb-av" id="sbAv" src="nexusai.png" alt="" onerror="this.style.opacity='.3'">
+      <img class="sb-av" id="sbAv" src="nexusai.png" alt="" onerror="this.style.opacity='.3'" onclick="openAvatarModal()" style="cursor:pointer;" title="Lihat avatar">
       <div style="min-width:0;flex:1;">
         <div class="sb-un" id="sbUn">-</div>
         <div class="sb-role" id="sbRole">Roblox Developer</div>
@@ -486,13 +486,25 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
 </div>
 
 <!-- MODALS -->
+<!-- Avatar Modal -->
+<div class="ov" id="avatarModal">
+  <div class="modal" style="width:360px;text-align:center;padding:28px;">
+    <div style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--cyan);margin-bottom:16px;" id="avatarModalName">-</div>
+    <img id="avatarModalImg" src="" alt="" style="width:140px;height:140px;border-radius:50%;border:3px solid var(--cyan);object-fit:cover;margin:0 auto 16px;display:block;" onerror="this.src='nexusai.png'">
+    <div style="font-size:11px;color:var(--dim);margin-bottom:6px;" id="avatarModalRole">Roblox Developer</div>
+    <div style="font-size:10px;color:var(--dim);" id="avatarModalId">-</div>
+    <div class="modal-footer" style="justify-content:center;margin-top:16px;">
+      <button class="btn-modal primary" onclick="closeModal('avatarModal')">TUTUP</button>
+    </div>
+  </div>
+</div>
 <div class="ov" id="installModal">
   <div class="modal">
     <div class="modal-t"><svg width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Cara Install Plugin NEXUS AI</div>
     <div class="modal-b">
       <div class="install-step"><div class="install-num">1</div><div class="install-txt">Download file plugin <code>nexusai_plugin_v5.lua</code> dari Discord NEXUS STUDIO</div></div>
       <div class="install-step"><div class="install-num">2</div><div class="install-txt">Simpan ke: <code>C:\Users\[NamaKamu]\AppData\Local\Roblox\Plugins\</code></div></div>
-      <div class="install-step"><div class="install-num">3</div><div class="install-txt">Buka Roblox Studio → <strong>Game Settings</strong> → <strong>Security</strong> → aktifkan <strong>Allow HTTP Requests</strong></div></div>
+      <div class="install-step"><div class="install-num">3</div><div class="install-txt">Buka Roblox Studio → <strong>Plugin Manager</strong> → install plugin, atau simpan file .lua ke folder Plugins. Pastikan <strong>Allow HTTP Requests</strong> aktif di Game Settings → Security</div></div>
       <div class="install-step"><div class="install-num">4</div><div class="install-txt">Klik tombol <strong>NEXUS AI</strong> di toolbar Roblox Studio → Klik <strong>CONNECT</strong></div></div>
       <div class="install-step"><div class="install-num">5</div><div class="install-txt">Status berubah hijau → Chat di web ini → AI langsung build di place kamu!</div></div>
     </div>
@@ -574,6 +586,7 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
     </div>
     <div class="settings-section">
       <div class="settings-title">Akun</div>
+      <div class="settings-row"><span>Ganti Akun Roblox</span><button class="settings-btn" onclick="switchAccount()">Ganti Akun</button></div>
       <div class="settings-row"><span>Logout</span><button class="settings-btn danger" onclick="logout()">Logout</button></div>
     </div>
     <div class="modal-footer"><button class="btn-modal primary" onclick="closeModal('settingsModal')">TUTUP</button></div>
@@ -589,11 +602,14 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
     </div>
     <div style="font-size:11px;color:var(--dim);margin-bottom:10px;">Credit Packs</div>
     <div class="credit-packages">
-      <div class="credit-pack" onclick="toast('Segera hadir! Rp 79K')"><div class="credit-pack-price">21 CR</div><div class="credit-pack-credits">Small</div><div class="credit-pack-idr">Rp 79K</div></div>
-      <div class="credit-pack pop" onclick="toast('Segera hadir! Rp 299K')"><div class="credit-pack-price">86 CR</div><div class="credit-pack-credits">Popular</div><div class="credit-pack-idr">Rp 299K</div></div>
-      <div class="credit-pack" onclick="toast('Segera hadir! Rp 1.5M')"><div class="credit-pack-price">438 CR</div><div class="credit-pack-credits">Mega</div><div class="credit-pack-idr">Rp 1.5M</div></div>
+      <div class="credit-pack" onclick="goToPayment('21','79000','21 CR Small')"><div class="credit-pack-price">21 CR</div><div class="credit-pack-credits">Small</div><div class="credit-pack-idr">Rp 79K</div></div>
+      <div class="credit-pack pop" onclick="goToPayment('86','299000','86 CR Popular')"><div class="credit-pack-price">86 CR</div><div class="credit-pack-credits">Popular</div><div class="credit-pack-idr">Rp 299K</div></div>
+      <div class="credit-pack" onclick="goToPayment('438','1500000','438 CR Mega')"><div class="credit-pack-price">438 CR</div><div class="credit-pack-credits">Mega</div><div class="credit-pack-idr">Rp 1.5M</div></div>
     </div>
-    <div class="modal-footer" style="margin-top:14px;"><button class="btn-modal secondary" onclick="closeModal('shopModal')">Tutup</button></div>
+    <div class="modal-footer" style="margin-top:14px;">
+      <button class="btn-modal primary" onclick="window.location.href='/payment'">Buka Halaman Pembayaran</button>
+      <button class="btn-modal secondary" onclick="closeModal('shopModal')">Tutup</button>
+    </div>
   </div>
 </div>
 
@@ -629,15 +645,15 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
 // ═══════════════════════════════════════
 //  MODEL LIST (shared between chat & GUI builder)
 // ═══════════════════════════════════════
-// Active models: gemini-2.5-flash-lite, gemini-2.5-flash, gemini-3-flash-preview
+// Active models: gemini-2.5-flash-lite, gemini-2.5-flash, gemini-3-flash-preview, gemini-3.1-flash-lite-preview
 // All others: COMING SOON (disabled)
 var MODEL_LIST = [
   {group:'Google Gemini'},
   {id:'gemini-2.5-flash-lite',prov:'gemini',cost:1,label:'Gemini 2.5 Flash Lite',sub:'Fast · Thinking',icon:'icon/gemini.png'},
   {id:'gemini-2.5-flash',prov:'gemini',cost:2,label:'Gemini 2.5 Flash',sub:'Smart · Thinking',icon:'icon/gemini.png'},
   {id:'gemini-3-flash-preview',prov:'gemini',cost:3,label:'Gemini 3 Flash',sub:'Extra Fast · Thinking',icon:'icon/gemini.png'},
+  {id:'gemini-3.1-flash-lite-preview',prov:'gemini',cost:2,label:'Gemini 3.1 Flash Lite',sub:'Fast · Thinking · New',icon:'icon/gemini.png'},
   {id:'gemini-2.5-pro',prov:'gemini',cost:5,label:'Gemini 2.5 Pro',sub:'Coming Soon',icon:'icon/gemini.png',soon:true},
-  {id:'gemini-3.1-flash-lite-preview',prov:'gemini',cost:6,label:'Gemini 3.1 Lite',sub:'Coming Soon',icon:'icon/gemini.png',soon:true},
   {id:'gemini-3.1-pro-preview',prov:'gemini',cost:12,label:'Gemini 3.1 Pro',sub:'Coming Soon',icon:'icon/gemini.png',soon:true},
   {group:'Meta Llama'},
   {id:'meta-llama/llama-4-maverick:free',prov:'openrouter',cost:0,label:'Llama 4 Maverick',sub:'Coming Soon',icon:'icon/meta.png',soon:true},
@@ -1106,12 +1122,24 @@ STUDIO TERHUBUNG! AI bisa langsung inject ke place "${username}":
 - run_code: Jalankan Lua code langsung di Studio
 
 PENTING SAAT STUDIO CONNECTED:
-- JANGAN tampilkan code block di chat. AI langsung inject ke Studio.
-- Setelah inject, jelaskan APA yang sudah dimasukkan, DI MANA, dan BAGAIMANA cara pakainya.
-- Format penjelasan: "✅ Saya sudah memasukkan [nama script] ke [lokasi]. Script ini berfungsi untuk..."
-- Jika ada RemoteEvent dll yang perlu dibuat, AI juga buat semuanya
-- AI bertanggung jawab memasukkan SEMUA yang diperlukan (server + client + modules + remotes)
+⚠️ ATURAN KRITIS - OUTPUT HANYA LUA, BUKAN JSON:
+- JANGAN PERNAH output JSON commands atau structured data
+- JANGAN tulis format: {"command":"inject_script",...} atau apapun yang mirip JSON
+- SELALU output kode dalam ```lua ... ``` code block biasa
+- Sistem akan otomatis parse ```lua blocks dan inject ke Studio
+
+CARA KERJA:
+1. Tulis kode Lua lengkap dalam ```lua ... ``` blocks
+2. Sistem otomatis detect dan inject ke lokasi yang tepat
+3. Jelaskan APA yang sudah dimasukkan setelah kode
+
+SETELAH KODE DIINJECT:
+- Jelaskan: "✅ Saya sudah memasukkan [NamaScript] ke [lokasi]. Fungsinya: ..."
+- Sebutkan cara pakai, cara test, dan apakah perlu Play dulu
+- AI bertanggung jawab memasukkan SEMUA (server + client + modules + remotes)
 - User tinggal klik Play untuk test — semua sudah siap
+
+PENTING: Untuk GUI di Studio, SELALU buat ```lua LocalScript/Script yang membangun GUI via Instance.new() bukan JSON config. UIScale wajib ditambahkan untuk AutoScaled!
 ` : `
 STUDIO BELUM TERHUBUNG. Kasih tahu user:
 "Untuk script langsung masuk ke Studio, klik NEXUS AI di toolbar Roblox Studio → CONNECT"
@@ -1119,14 +1147,20 @@ Tetap berikan kode Lua LENGKAP dalam code block \`\`\`lua agar user bisa copy ma
 `}
 
 ===== ATURAN GUI (Expert Level) =====
-- Selalu UICorner untuk rounded corners
+WAJIB untuk semua GUI:
+- UICorner untuk rounded corners (CornerRadius = UDim.new(0, 8) atau lebih)
 - BorderSizePixel = 0 untuk semua element
-- TweenService untuk animasi smooth
-- UDim2 scale untuk mobile-compatible
-- ScreenGui dengan ResetOnSpawn = false, IgnoreGuiInset = true
+- TweenService untuk animasi smooth (hover, click, open/close)
+- UIScale WAJIB di dalam ScreenGui untuk AutoScaled:
+  local uiScale = Instance.new("UIScale")
+  uiScale.Scale = 1
+  uiScale.Parent = screenGui
+- ScreenGui: ResetOnSpawn = false, IgnoreGuiInset = true
 - ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-- Selalu tambah UIStroke, UIGradient untuk tampilan premium
-- Buat GUI yang terlihat PROFESSIONAL seperti game AAA
+- UIStroke dan UIGradient untuk tampilan premium AAA
+- SEMUA ukuran pakai UDim2 scale atau kombinasi scale+offset
+- Buat GUI yang PROFESIONAL - gradient, shadow, animasi smooth
+- Minimal 200+ baris untuk GUI yang kompleks
 
 ===== PLUGIN ROBLOX STUDIO (Expert Level) =====
 Kamu juga expert membuat Plugin Roblox Studio level PRO/berbayar:
@@ -1576,11 +1610,17 @@ function cancelGen(){
 // ═══════════════════════════════════════
 function parseLuaBlocks(text){
   var blocks=[];
-  var re=/```(?:lua|luau)?\s*([\s\S]*?)```/g;
+  // Only match explicit luau blocks to avoid JSON/other content
+  var re=/```(?:lua|luau)\s*([\s\S]*?)```/g;
   var m;
   while((m=re.exec(text))!==null){
     var code=m[1].trim();
-    if(code.length>30&&/local\s+\w+|function\s+\w+|game:|workspace:|Instance\.new|:GetService|script\.|Players\.|Humanoid|TweenService|DataStore|RemoteEvent|BindableEvent|HttpService/.test(code)){
+    // Reject JSON/command blocks
+    if(/^\s*[\[{]/.test(code)) continue;
+    if(/"command"\s*:/.test(code)) continue;
+    if(code.length<30) continue;
+    // Must have real Lua syntax patterns
+    if(/local\s+\w+|function\s+\w+|game:|workspace:|Instance\.new|:GetService|script\.|Players\.|Humanoid|TweenService|DataStore|RemoteEvent|task\.wait|pcall\(/.test(code)){
       blocks.push(code);
     }
   }
@@ -2115,6 +2155,16 @@ async function sendReport(){
   finally{btn.disabled=false;btn.textContent='Kirim Report';setTimeout(function(){document.getElementById('reportStatus').textContent='';},4000);}
 }
 function openShop(){document.getElementById('shopModal').classList.add('show');}
+function goToPayment(cr, price, label){
+  // Navigate to payment page with params
+  window.location.href = '/payment?cr='+cr+'&price='+price+'&label='+encodeURIComponent(label);
+}
+function switchAccount(){
+  if(!confirm('Logout dan ganti akun Roblox?')) return;
+  localStorage.removeItem('nexus_session');
+  localStorage.removeItem('nexus_lang');
+  window.location.replace('/login');
+}
 
 // ═══════════════════════════════════════
 //  REDEEM
@@ -2214,6 +2264,15 @@ function clearChat(){
 function useSugg(txt){document.getElementById('inp').value=txt;document.getElementById('inp').focus();}
 function showInstall(){document.getElementById('installModal').classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
+function openAvatarModal(){
+  if(!SESSION) return;
+  var u=SESSION.user;
+  var nm=document.getElementById('avatarModalName'); if(nm) nm.textContent=u.username||'-';
+  var img=document.getElementById('avatarModalImg'); if(img) img.src=u.avatar||'nexusai.png';
+  var role=document.getElementById('avatarModalRole'); if(role) role.textContent=isOwner()?'★ Admin':'Roblox Developer';
+  var rid=document.getElementById('avatarModalId'); if(rid) rid.textContent='ID: '+(u.robloxId||'-');
+  document.getElementById('avatarModal').classList.add('show');
+}
 function logout(){if(!confirm('Logout?'))return;saveS();localStorage.removeItem('nexus_session');window.location.replace('/login');}
 function toast(msg){
   document.querySelectorAll('.toast-el').forEach(function(x){x.remove();});
