@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Beli Credits — NEXUS AI</title>
+<link rel="icon" href="nexusai.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#030312;--bg2:#06071a;--bg3:#0a0b22;
+  --cyan:#00e5ff;--cyan2:rgba(0,229,255,.35);--cyan3:rgba(0,229,255,.12);
+  --purple:#8800ff;--pink:#ff2d6b;--green:#00ffaa;--yellow:#ffd600;--orange:#ff6b00;
+  --text:#b8cfff;--dim:#3a4a7a;--b:rgba(0,229,255,.12);--r:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100%;font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--text);font-size:13px;}
+body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0,229,255,.012)1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.012)1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(3,3,18,.92);border-bottom:1px solid var(--b);backdrop-filter:blur(10px);}
+.nav-logo{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;}
+.nav-back{display:flex;align-items:center;gap:6px;color:var(--dim);font-size:10px;cursor:pointer;border:none;background:none;padding:4px 10px;border-radius:5px;border:1px solid var(--b);transition:.15s;}
+.nav-back:hover{color:var(--cyan);border-color:var(--cyan);}
+
+/* MAIN */
+.main{max-width:680px;margin:0 auto;padding:30px 16px 60px;position:relative;z-index:1;}
+
+/* HERO */
+.hero{text-align:center;margin-bottom:32px;}
+.hero-icon{font-size:40px;margin-bottom:12px;}
+.hero-title{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;}
+.hero-sub{font-size:11px;color:var(--dim);}
+
+/* USER CARD */
+.user-card{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:12px 16px;margin-bottom:28px;}
+.user-av{width:40px;height:40px;border-radius:50%;border:2px solid var(--cyan2);object-fit:cover;flex-shrink:0;}
+.user-info .un{font-size:12px;color:white;font-weight:600;}
+.user-info .cr{font-size:10px;color:var(--dim);margin-top:2px;}
+.user-info .cr span{color:var(--yellow);font-weight:700;}
+
+/* SECTION TITLE */
+.sec-title{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--b);}
+
+/* PLAN CARDS */
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;}
+.plan-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:18px 16px;cursor:pointer;transition:.2s;position:relative;overflow:hidden;}
+.plan-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;transition:.2s;}
+.plan-card:hover{border-color:var(--cyan2);transform:translateY(-2px);}
+.plan-card.selected{border-color:var(--cyan);box-shadow:0 0 16px rgba(0,229,255,.15);}
+.plan-card.selected::before{background:linear-gradient(90deg,var(--cyan),var(--purple));}
+.plan-badge{font-size:9px;font-weight:700;letter-spacing:1px;margin-bottom:8px;}
+.plan-badge.free{color:var(--green);}
+.plan-badge.pro{color:var(--cyan);}
+.plan-price{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:white;margin-bottom:2px;}
+.plan-price sub{font-size:11px;color:var(--dim);}
+.plan-period{font-size:9px;color:var(--dim);margin-bottom:12px;}
+.plan-features{list-style:none;}
+.plan-features li{font-size:10px;color:var(--text);padding:3px 0;display:flex;align-items:center;gap:5px;}
+.plan-features li::before{content:'✓';color:var(--green);font-size:9px;flex-shrink:0;}
+.plan-features li.dim::before{content:'–';color:var(--dim);}
+.plan-features li.dim{color:var(--dim);}
+.pro-badge{position:absolute;top:10px;right:10px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:white;font-size:8px;font-family:'Orbitron',sans-serif;padding:2px 8px;border-radius:10px;font-weight:700;}
+.plan-btn{width:100%;padding:9px;margin-top:14px;border:none;border-radius:6px;font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:.2s;}
+.plan-btn.free-btn{background:rgba(0,255,170,.1);color:var(--green);border:1px solid rgba(0,255,170,.2);}
+.plan-btn.pro-btn{background:linear-gradient(135deg,var(--cyan),var(--purple));color:white;}
+.plan-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* CREDIT PACKS */
+.packs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;}
+.pack-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:14px 12px;cursor:pointer;transition:.2s;text-align:center;position:relative;}
+.pack-card:hover{border-color:var(--cyan2);transform:translateY(-2px);}
+.pack-card.selected{border-color:var(--yellow);box-shadow:0 0 14px rgba(255,214,0,.12);}
+.pack-card.popular::after{content:'POPULAR';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--yellow);color:#000;font-size:7px;font-weight:700;padding:2px 8px;border-radius:0 0 5px 5px;font-family:'Orbitron',sans-serif;}
+.pack-cr{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:var(--yellow);}
+.pack-label{font-size:9px;color:var(--dim);margin:2px 0 8px;}
+.pack-price{font-size:12px;color:white;font-weight:700;}
+.pack-sub{font-size:9px;color:var(--dim);}
+
+/* PAYMENT METHOD */
+.pay-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+.pay-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:14px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:10px;}
+.pay-card:hover{border-color:var(--cyan2);}
+.pay-card.selected{border-color:var(--cyan);}
+.pay-icon{width:40px;height:40px;border-radius:8px;object-fit:contain;flex-shrink:0;background:white;padding:4px;}
+.pay-name{font-size:12px;font-weight:700;color:white;}
+.pay-sub{font-size:9px;color:var(--dim);}
+.pay-check{margin-left:auto;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--dim);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.2s;}
+.pay-card.selected .pay-check{background:var(--cyan);border-color:var(--cyan);}
+.pay-card.selected .pay-check::after{content:'✓';color:#000;font-size:9px;font-weight:700;}
+
+/* ORDER SUMMARY */
+.order-box{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:16px 18px;margin-bottom:20px;}
+.order-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;}
+.order-row.total{border-top:1px solid var(--b);margin-top:8px;padding-top:12px;}
+.order-label{font-size:11px;color:var(--dim);}
+.order-val{font-size:11px;color:var(--text);}
+.order-total-val{font-family:'Orbitron',sans-serif;font-size:16px;color:var(--yellow);font-weight:700;}
+
+/* PAYMENT INSTRUCTION */
+.pay-instruction{display:none;background:linear-gradient(135deg,rgba(0,229,255,.04),rgba(136,0,255,.04));border:1px solid var(--cyan2);border-radius:var(--r);padding:18px;margin-bottom:20px;}
+.pay-instruction.show{display:block;}
+.inst-title{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--cyan);margin-bottom:12px;}
+.inst-number{font-size:18px;font-weight:700;color:white;letter-spacing:2px;font-family:'Orbitron',sans-serif;background:var(--bg3);padding:10px 14px;border-radius:6px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;cursor:pointer;border:1px solid var(--b);}
+.inst-number:hover{border-color:var(--cyan);}
+.inst-steps{list-style:none;}
+.inst-steps li{font-size:11px;color:var(--text);padding:4px 0;display:flex;gap:8px;}
+.inst-steps li span.num{color:var(--cyan);font-weight:700;flex-shrink:0;width:16px;}
+.inst-name{font-size:10px;color:var(--dim);margin-bottom:8px;}
+.inst-warn{margin-top:12px;padding:10px;background:rgba(255,214,0,.05);border:1px solid rgba(255,214,0,.2);border-radius:6px;font-size:10px;color:var(--yellow);}
+
+/* CONFIRM BUTTON */
+.btn-pay{width:100%;padding:14px;background:linear-gradient(135deg,var(--cyan),var(--purple));border:none;border-radius:var(--r);color:white;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:1px;}
+.btn-pay:hover{opacity:.88;transform:translateY(-1px);}
+.btn-pay:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-pay-done{width:100%;padding:14px;background:linear-gradient(135deg,var(--green),#00aa66);border:none;border-radius:var(--r);color:#000;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:1px;display:none;}
+
+/* STEPS */
+.steps-bar{display:flex;align-items:center;gap:0;margin-bottom:28px;}
+.step-item{display:flex;align-items:center;flex:1;}
+.step-dot{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--dim);display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'Orbitron',sans-serif;font-weight:700;color:var(--dim);flex-shrink:0;transition:.3s;}
+.step-dot.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,.06);}
+.step-dot.done{border-color:var(--green);color:var(--green);background:rgba(0,255,170,.06);}
+.step-line{flex:1;height:1px;background:var(--b);}
+.step-line.done{background:var(--green);}
+.step-label{font-size:8px;color:var(--dim);margin-top:4px;text-align:center;position:absolute;}
+
+/* VIEWS */
+.view{display:none;}
+.view.active{display:block;}
+
+/* TOAST */
+.toast-el{position:fixed;bottom:22px;right:22px;background:var(--bg3);border:1px solid var(--b);border-radius:8px;padding:10px 16px;font-size:11px;z-index:9999;transition:.3s;transform:translateY(10px);opacity:0;}
+.toast-el.show{transform:none;opacity:1;}
+
+@media(max-width:540px){
+  .plans{grid-template-columns:1fr 1fr;}
+  .packs{grid-template-columns:repeat(3,1fr);}
+  .pay-methods{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="/" class="nav-logo">NEXUS AI</a>
+  <button class="nav-back" onclick="goBack()">← Kembali</button>
+</nav>
+
+<div class="main">
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-icon">⭐</div>
+    <div class="hero-title">Beli Credits</div>
+    <div class="hero-sub">Pilih paket yang sesuai kebutuhanmu</div>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps-bar" id="stepsBar">
+    <div class="step-item">
+      <div class="step-dot active" id="sd1">1</div>
+      <div class="step-line" id="sl1"></div>
+    </div>
+    <div class="step-item">
+      <div class="step-dot" id="sd2">2</div>
+      <div class="step-line" id="sl2"></div>
+    </div>
+    <div class="step-item">
+      <div class="step-dot" id="sd3">3</div>
+    </div>
+  </div>
+
+  <!-- USER INFO -->
+  <div class="user-card">
+    <img class="user-av" id="payUserAv" src="nexusai.png" alt="">
+    <div class="user-info">
+      <div class="un" id="payUserName">-</div>
+      <div class="cr">Credits: <span id="payUserCR">-</span> CR</div>
+    </div>
+  </div>
+
+  <!-- VIEW 1: SELECT PACKAGE -->
+  <div class="view active" id="view1">
+    <div class="sec-title">Pilih Paket</div>
+
+    <!-- PLANS -->
+    <div class="plans">
+      <!-- FREE -->
+      <div class="plan-card" id="planFree" onclick="selectPlan('free')">
+        <div class="plan-badge free">FREE</div>
+        <div class="plan-price">$0<sub>/bulan</sub></div>
+        <div class="plan-period">Selamanya gratis</div>
+        <ul class="plan-features">
+          <li>30 CR saat daftar</li>
+          <li>+2 CR / hari</li>
+          <li>Gemini Flash Lite</li>
+          <li class="dim">Model premium</li>
+          <li class="dim">Priority support</li>
+        </ul>
+        <button class="plan-btn free-btn" disabled id="freeBtnPlan">Paket Aktif</button>
+      </div>
+      <!-- PRO -->
+      <div class="plan-card" id="planPro" onclick="selectPlan('pro')">
+        <span class="pro-badge">SOON</span>
+        <div class="plan-badge pro">PRO</div>
+        <div class="plan-price">$9.99<sub>/bulan</sub></div>
+        <div class="plan-period">Per bulan · Batal kapanpun</div>
+        <ul class="plan-features">
+          <li>200 CR saat aktif</li>
+          <li>+25 CR / hari</li>
+          <li>Semua model AI</li>
+          <li>Priority support</li>
+          <li>Fitur eksklusif</li>
+        </ul>
+        <button class="plan-btn pro-btn" disabled>Segera Hadir</button>
+      </div>
+    </div>
+
+    <!-- CREDIT PACKS -->
+    <div class="sec-title">Credit Packs (Beli Sekali)</div>
+    <div class="packs">
+      <div class="pack-card" id="pack21" onclick="selectPack('21','79000','21 CR Small')">
+        <div class="pack-cr">21</div>
+        <div class="pack-label">Small</div>
+        <div class="pack-price">Rp 79K</div>
+        <div class="pack-sub">≈ Rp 3.800/CR</div>
+      </div>
+      <div class="pack-card popular" id="pack86" onclick="selectPack('86','299000','86 CR Popular')">
+        <div class="pack-cr">86</div>
+        <div class="pack-label">Popular</div>
+        <div class="pack-price">Rp 299K</div>
+        <div class="pack-sub">≈ Rp 3.500/CR</div>
+      </div>
+      <div class="pack-card" id="pack438" onclick="selectPack('438','1500000','438 CR Mega')">
+        <div class="pack-cr">438</div>
+        <div class="pack-label">Mega</div>
+        <div class="pack-price">Rp 1.5M</div>
+        <div class="pack-sub">≈ Rp 3.400/CR</div>
+      </div>
+    </div>
+
+    <button class="btn-pay" id="btnNext1" onclick="goToPayment()" disabled>Lanjut ke Pembayaran →</button>
+  </div>
+
+  <!-- VIEW 2: PAYMENT METHOD -->
+  <div class="view" id="view2">
+    <div class="sec-title">Pilih Metode Pembayaran</div>
+
+    <div class="pay-methods">
+      <div class="pay-card" id="payOVO" onclick="selectPayMethod('ovo')">
+        <img class="pay-icon" src="icon/ovo.png" alt="OVO" onerror="this.style.display='none'">
+        <div>
+          <div class="pay-name">OVO</div>
+          <div class="pay-sub">Transfer saldo OVO</div>
+        </div>
+        <div class="pay-check" id="ovoCheck"></div>
+      </div>
+      <div class="pay-card" id="payDANA" onclick="selectPayMethod('dana')">
+        <img class="pay-icon" src="icon/dana.png" alt="DANA" onerror="this.style.display='none'">
+        <div>
+          <div class="pay-name">DANA</div>
+          <div class="pay-sub">Transfer saldo DANA</div>
+        </div>
+        <div class="pay-check" id="danaCheck"></div>
+      </div>
+    </div>
+
+    <!-- ORDER SUMMARY -->
+    <div class="order-box">
+      <div class="sec-title" style="margin-bottom:10px;">Ringkasan Pesanan</div>
+      <div class="order-row">
+        <span class="order-label">Paket</span>
+        <span class="order-val" id="sumPack">-</span>
+      </div>
+      <div class="order-row">
+        <span class="order-label">Credits</span>
+        <span class="order-val" id="sumCR" style="color:var(--yellow);">-</span>
+      </div>
+      <div class="order-row">
+        <span class="order-label">Metode</span>
+        <span class="order-val" id="sumMethod">-</span>
+      </div>
+      <div class="order-row total">
+        <span class="order-label" style="color:white;font-weight:700;">Total</span>
+        <span class="order-total-val" id="sumTotal">-</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;">
+      <button class="nav-back" style="flex:1;justify-content:center;padding:12px;" onclick="goToView(1)">← Kembali</button>
+      <button class="btn-pay" style="flex:2;" id="btnPay" onclick="showPayInst()" disabled>Lihat Instruksi Bayar →</button>
+    </div>
+  </div>
+
+  <!-- VIEW 3: PAYMENT INSTRUCTION -->
+  <div class="view" id="view3">
+    <div class="sec-title">Instruksi Pembayaran</div>
+
+    <div class="pay-instruction show" id="instBox">
+      <div class="inst-title" id="instTitle">Transfer ke OVO</div>
+      <div class="inst-name" id="instName">Atas nama: FIINYTID25</div>
+      <div class="inst-number" id="instNumber" onclick="copyNumber()">
+        <span id="instNumVal">-</span>
+        <span style="font-size:9px;color:var(--dim);">Tap to copy</span>
+      </div>
+
+      <ul class="inst-steps">
+        <li><span class="num">1.</span> Buka aplikasi <strong id="instApp">OVO</strong> di HP kamu</li>
+        <li><span class="num">2.</span> Pilih <strong>Transfer</strong> → masukkan nomor di atas</li>
+        <li><span class="num">3.</span> Masukkan nominal <strong id="instAmount">-</strong></li>
+        <li><span class="num">4.</span> Di catatan/keterangan, tulis: <strong id="instNote">-</strong></li>
+        <li><span class="num">5.</span> Konfirmasi dan selesaikan transfer</li>
+        <li><span class="num">6.</span> Screenshot bukti transfer</li>
+        <li><span class="num">7.</span> Klik tombol "Saya Sudah Bayar" di bawah</li>
+      </ul>
+
+      <div class="inst-warn">
+        ⚠️ Credits akan ditambahkan dalam <strong>1-24 jam</strong> setelah pembayaran dikonfirmasi.
+        Simpan screenshot bukti transfer kamu!
+      </div>
+    </div>
+
+    <!-- SUMMARY REPEAT -->
+    <div class="order-box">
+      <div class="order-row">
+        <span class="order-label">Paket</span>
+        <span class="order-val" id="sumPack2">-</span>
+      </div>
+      <div class="order-row total">
+        <span class="order-label" style="color:white;font-weight:700;">Total Bayar</span>
+        <span class="order-total-val" id="sumTotal2">-</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-direction:column;">
+      <button class="btn-pay" id="btnDone" onclick="confirmPayment()">✅ Saya Sudah Bayar</button>
+      <button class="nav-back" style="width:100%;justify-content:center;padding:10px;" onclick="goToView(2)">← Kembali</button>
+    </div>
+  </div>
+
+  <!-- VIEW 4: CONFIRMED -->
+  <div class="view" id="view4" style="text-align:center;padding:40px 0;">
+    <div style="font-size:60px;margin-bottom:20px;">✅</div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:18px;color:var(--green);margin-bottom:12px;">Pembayaran Dikonfirmasi!</div>
+    <p style="color:var(--dim);font-size:11px;margin-bottom:8px;">Credits kamu akan ditambahkan dalam 1-24 jam.</p>
+    <p style="color:var(--dim);font-size:11px;margin-bottom:28px;">Simpan screenshot bukti transfermu ya!</p>
+    <p style="color:var(--text);font-size:11px;margin-bottom:28px;">Untuk pertanyaan, hubungi:<br><strong style="color:var(--cyan);">arifiinytid@gmail.com</strong></p>
+    <button class="btn-pay" onclick="window.location.href='/'">← Kembali ke NEXUS AI</button>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────
+// Set your payment numbers here or use environment variables
+// These will be injected server-side, but for now use defaults
+var OVO_NUMBER  = window.OVO_NUMBER  || '__OVO_NUMBER__';   // replace this via vercel env
+var DANA_NUMBER = window.DANA_NUMBER || '__DANA_NUMBER__';  // replace this via vercel env
+var OWNER_NAME  = 'FIINYTID25';
+
+// ─── STATE ────────────────────────────────────────────────
+var sel = { pack: null, cr: 0, price: 0, priceStr: '', label: '', method: null };
+var currentView = 1;
+var SESSION = null;
+
+// ─── INIT ─────────────────────────────────────────────────
+(function(){
+  try {
+    var s = localStorage.getItem('nexus_session');
+    if (s) {
+      SESSION = JSON.parse(s);
+      var u = SESSION.user || {};
+      var d = document.getElementById('payUserAv');
+      if (d) d.src = u.avatar || 'nexusai.png';
+      var n = document.getElementById('payUserName');
+      if (n) n.textContent = '@' + (u.username || '-');
+      var cr = document.getElementById('payUserCR');
+      var credits = (SESSION.data && SESSION.data.credits !== undefined) ? parseFloat(SESSION.data.credits).toFixed(2) : '-';
+      if (cr) cr.textContent = credits;
+    }
+  } catch(e){}
+})();
+
+function goBack(){
+  if (currentView > 1) goToView(currentView - 1);
+  else window.location.href = '/';
+}
+
+function toast(msg, col){
+  var t = document.createElement('div');
+  t.className = 'toast-el';
+  t.textContent = msg;
+  t.style.color = col || 'var(--cyan)';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.classList.add('show'); }, 10);
+  setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.remove(); }, 400); }, 3000);
+}
+
+function goToView(n){
+  document.getElementById('view'+currentView).classList.remove('active');
+  document.getElementById('view'+n).classList.add('active');
+  currentView = n;
+  // Update step bar
+  for (var i=1; i<=3; i++){
+    var sd = document.getElementById('sd'+i);
+    if (!sd) continue;
+    if (i < n) { sd.className = 'step-dot done'; }
+    else if (i === n) { sd.className = 'step-dot active'; }
+    else { sd.className = 'step-dot'; }
+    if (i < 3) {
+      var sl = document.getElementById('sl'+i);
+      if (sl) sl.className = 'step-line' + (i < n ? ' done' : '');
+    }
+  }
+  window.scrollTo(0,0);
+}
+
+function selectPlan(p){
+  // Only free plan active for now
+  if (p === 'pro') { toast('Pro plan segera hadir!', 'var(--yellow)'); return; }
+}
+
+function selectPack(cr, price, label){
+  // Deselect all
+  ['pack21','pack86','pack438'].forEach(function(id){
+    document.getElementById(id).classList.remove('selected');
+  });
+  var priceNum = parseInt(price);
+  sel.pack = cr;
+  sel.cr = parseInt(cr);
+  sel.price = priceNum;
+  sel.priceStr = 'Rp '+formatRp(priceNum);
+  sel.label = label;
+  document.getElementById('pack'+cr).classList.add('selected');
+  document.getElementById('btnNext1').disabled = false;
+}
+
+function formatRp(n){
+  if (n >= 1000000) return (n/1000000).toFixed(n%1000000===0?0:1)+'M';
+  if (n >= 1000) return Math.round(n/1000)+'K';
+  return n.toString();
+}
+
+function goToPayment(){
+  if (!sel.pack) { toast('Pilih paket dulu!', 'var(--pink)'); return; }
+  // Update summary
+  document.getElementById('sumPack').textContent = sel.label;
+  document.getElementById('sumCR').textContent = sel.cr + ' CR';
+  document.getElementById('sumTotal').textContent = sel.priceStr;
+  document.getElementById('sumMethod').textContent = sel.method ? (sel.method==='ovo'?'OVO':'DANA') : '-';
+  goToView(2);
+}
+
+function selectPayMethod(m){
+  sel.method = m;
+  document.getElementById('payOVO').classList.toggle('selected', m==='ovo');
+  document.getElementById('payDANA').classList.toggle('selected', m==='dana');
+  document.getElementById('sumMethod').textContent = m==='ovo'?'OVO':'DANA';
+  document.getElementById('btnPay').disabled = false;
+}
+
+function showPayInst(){
+  if (!sel.method) { toast('Pilih metode pembayaran dulu!', 'var(--pink)'); return; }
+  var isOvo = sel.method === 'ovo';
+  var num = isOvo ? OVO_NUMBER : DANA_NUMBER;
+  var username = SESSION && SESSION.user ? SESSION.user.username : 'USER';
+
+  document.getElementById('instTitle').textContent = 'Transfer ke ' + (isOvo?'OVO':'DANA');
+  document.getElementById('instName').textContent = 'Atas nama: ' + OWNER_NAME;
+  document.getElementById('instNumVal').textContent = num;
+  document.getElementById('instApp').textContent = isOvo ? 'OVO' : 'DANA';
+  document.getElementById('instAmount').textContent = sel.priceStr;
+  document.getElementById('instNote').textContent = 'NEXUS-' + username + '-' + sel.cr + 'CR';
+
+  document.getElementById('sumPack2').textContent = sel.label;
+  document.getElementById('sumTotal2').textContent = sel.priceStr;
+
+  goToView(3);
+}
+
+function copyNumber(){
+  var isOvo = sel.method === 'ovo';
+  var num = isOvo ? OVO_NUMBER : DANA_NUMBER;
+  navigator.clipboard.writeText(num).then(function(){
+    toast('Nomor disalin!', 'var(--green)');
+  }).catch(function(){
+    toast(num, 'var(--cyan)');
+  });
+}
+
+function confirmPayment(){
+  // Send report to server
+  if (SESSION) {
+    var u = SESSION.user;
+    var note = 'NEXUS-' + u.username + '-' + sel.cr + 'CR · ' + sel.method.toUpperCase() + ' · ' + sel.priceStr;
+    fetch('/api/report', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        from: u.username,
+        userId: u.robloxId || u.id,
+        message: '💳 PEMBAYARAN BARU:\nPaket: ' + sel.label + '\nCredits: ' + sel.cr + ' CR\nMetode: ' + sel.method.toUpperCase() + '\nTotal: ' + sel.priceStr + '\nNote: ' + note,
+        time: new Date().toISOString(),
+        plan: SESSION.data ? (SESSION.data.plan || 'free') : 'free',
+        credits: SESSION.data ? (SESSION.data.credits || 0) : 0,
+        type: 'payment',
+        paymentPack: sel.label,
+        paymentCR: sel.cr,
+        paymentMethod: sel.method,
+        paymentTotal: sel.priceStr,
+      })
+    }).catch(function(){});
+  }
+  goToView(4);
+}
+</script>
+</body>
+</html>
