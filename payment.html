@@ -310,6 +310,14 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
         <li><span class="num">4.</span> Di catatan/keterangan, tulis: <strong id="instNote">-</strong></li>
         <li><span class="num">5.</span> Konfirmasi dan selesaikan transfer</li>
         <li><span class="num">6.</span> Screenshot bukti transfer</li>
+        <li><span class="num">7.</span> Enter the transfer amount below to enable confirmation:</li>
+      </ul>
+      <div style="margin-top:12px;">
+        <div style="font-size:10px;color:var(--dim);margin-bottom:6px;">Enter transfer amount (Rp) to confirm:</div>
+        <input type="number" id="confirmAmountInput" placeholder="e.g. 299000" style="width:100%;background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:8px 12px;color:white;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;" oninput="validatePaymentAmount(this.value)">
+        <div style="font-size:9px;color:var(--dim);margin-top:4px;" id="amountValidMsg"></div>
+      </div>
+      <ul style="list-style:none;display:none;">
         <li><span class="num">7.</span> Klik tombol "Saya Sudah Bayar" di bawah</li>
       </ul>
 
@@ -332,7 +340,7 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
     </div>
 
     <div style="display:flex;gap:10px;flex-direction:column;">
-      <button class="btn-pay" id="btnDone" onclick="confirmPayment()">✅ Saya Sudah Bayar</button>
+      <button class="btn-pay" id="btnDone" onclick="confirmPayment()" disabled style="opacity:0.4;cursor:not-allowed;">✅ Saya Sudah Bayar</button>
       <button class="nav-back" style="width:100%;justify-content:center;padding:10px;" onclick="goToView(2)">← Kembali</button>
     </div>
   </div>
@@ -350,11 +358,24 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
 
 <script>
 // ─── CONFIG ───────────────────────────────────────────────
-// Set your payment numbers here or use environment variables
-// These will be injected server-side, but for now use defaults
-var OVO_NUMBER  = window.OVO_NUMBER  || '__OVO_NUMBER__';   // replace this via vercel env
-var DANA_NUMBER = window.DANA_NUMBER || '__DANA_NUMBER__';  // replace this via vercel env
-var OWNER_NAME  = 'FIINYTID25';
+var OVO_NUMBER  = '';
+var DANA_NUMBER = '';
+var OWNER_NAME  = 'NEXUS STUDIO';
+var paymentLoaded = false;
+
+// Fetch payment config from server (numbers come from Vercel env vars)
+async function loadPaymentConfig() {
+  try {
+    var r = await fetch('/api/payment');
+    if (r.ok) {
+      var d = await r.json();
+      OVO_NUMBER  = (d.ovo  && d.ovo.number)  ? d.ovo.number  : '';
+      DANA_NUMBER = (d.dana && d.dana.number)  ? d.dana.number : '';
+      OWNER_NAME  = d.owner || 'NEXUS STUDIO';
+      paymentLoaded = true;
+    }
+  } catch(e) { console.warn('Failed to load payment config:', e); }
+}
 
 // ─── STATE ────────────────────────────────────────────────
 var sel = { pack: null, cr: 0, price: 0, priceStr: '', label: '', method: null };
@@ -377,6 +398,8 @@ var SESSION = null;
       if (cr) cr.textContent = credits;
     }
   } catch(e){}
+  // Load payment config from server
+  loadPaymentConfig();
 })();
 
 function goBack(){
@@ -459,6 +482,7 @@ function selectPayMethod(m){
 
 function showPayInst(){
   if (!sel.method) { toast('Pilih metode pembayaran dulu!', 'var(--pink)'); return; }
+  if (!paymentLoaded) { toast('Memuat konfigurasi pembayaran...'); loadPaymentConfig().then(function(){ if(paymentLoaded) showPayInst(); }); return; }
   var isOvo = sel.method === 'ovo';
   var num = isOvo ? OVO_NUMBER : DANA_NUMBER;
   var username = SESSION && SESSION.user ? SESSION.user.username : 'USER';
@@ -476,6 +500,27 @@ function showPayInst(){
   goToView(3);
 }
 
+function validatePaymentAmount(val){
+  var amt = parseInt(val);
+  var expected = sel.price;
+  var msgEl = document.getElementById('amountValidMsg');
+  var btn = document.getElementById('btnDone');
+  if (!amt || amt <= 0) {
+    if(msgEl) msgEl.textContent = '';
+    if(btn) { btn.disabled=true; btn.style.opacity='0.4'; btn.style.cursor='not-allowed'; }
+    return;
+  }
+  if (amt === expected) {
+    if(msgEl) { msgEl.textContent = '✅ Amount matches! You can now confirm.'; msgEl.style.color='var(--green)'; }
+    if(btn) { btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer'; }
+  } else if (Math.abs(amt - expected) < 1000) {
+    if(msgEl) { msgEl.textContent = '⚠️ Close but not exact. Expected: Rp ' + expected.toLocaleString(); msgEl.style.color='var(--yellow)'; }
+    if(btn) { btn.disabled=true; btn.style.opacity='0.4'; btn.style.cursor='not-allowed'; }
+  } else {
+    if(msgEl) { msgEl.textContent = '❌ Amount does not match. Expected: Rp ' + expected.toLocaleString(); msgEl.style.color='var(--pink)'; }
+    if(btn) { btn.disabled=true; btn.style.opacity='0.4'; btn.style.cursor='not-allowed'; }
+  }
+}
 function copyNumber(){
   var isOvo = sel.method === 'ovo';
   var num = isOvo ? OVO_NUMBER : DANA_NUMBER;
