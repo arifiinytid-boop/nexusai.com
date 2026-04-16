@@ -733,7 +733,9 @@ function buildModelDDHtml(activeId, forGui) {
 // ═══════════════════════════════════════
 var API_URL    = '/api/control';
 var REPORT_URL = '/api/report';
-var OWNER_USERS = ['FIINYTID25','fiinytid25'];
+// Owner and Admin by Roblox User ID (set in Vercel env via /api/admin or hardcoded here)
+var OWNER_IDS = ['128649548']; // FIINYTID25 - add more as comma-separated
+var ADMIN_IDS = []; // Populated from server
 var OR_KEY = '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';
 var K = { gemini:'', claude:'', openai:'', grok:'' };
 var keysLoaded = false;
@@ -1011,7 +1013,15 @@ async function loadS() {
     S.draftAttach = d.draftAttach || {};
     S.language    = d.language || localStorage.getItem('nexus_lang') || 'id';
     S.theme       = d.theme || 'cyan';
-    S.roles       = d.roles || (isOwner() ? ['owner'] : []);
+    S.roles       = d.roles || [];
+    // Always ensure owner gets correct role based on userId
+    if (isOwner() && S.roles.indexOf('owner') === -1) {
+      S.roles = ['owner', 'admin'];
+    } else if (isAdmin() && S.roles.indexOf('admin') === -1) {
+      S.roles.push('admin');
+    }
+    // Load admin IDs from server
+    loadAdminIds();
     if (d.model && d.model.id) {
       // Validate the saved model is still in the active list (not COMING SOON)
       var savedModelValid = MODEL_LIST.find(function(m){ return m.id === d.model.id && !m.group && !m.soon; });
@@ -1064,8 +1074,30 @@ function saveS() {
   } catch(e) { console.warn('saveS error:', e.message); }
 }
 
-function isOwner() { return SESSION && OWNER_USERS.indexOf(SESSION.user.username) !== -1; }
-function isAdmin() { return isOwner() || (SESSION && S.roles && S.roles.indexOf('admin') !== -1); }
+async function loadAdminIds() {
+  try {
+    var r = await fetch('/api/admin?list=1&token=' + (window.ADMIN_TOKEN || ''));
+    if (r.ok) {
+      var d = await r.json();
+      if (d && d.owners) OWNER_IDS = d.owners;
+      if (d && d.admins) ADMIN_IDS = d.admins;
+    }
+  } catch(e) { /* silent - use defaults */ }
+}
+function isOwner() {
+  if (!SESSION) return false;
+  var uid = String(SESSION.user.robloxId || SESSION.user.id || '');
+  return uid && OWNER_IDS.indexOf(uid) !== -1;
+}
+function isAdmin() {
+  if (isOwner()) return true;
+  if (!SESSION) return false;
+  var uid = String(SESSION.user.robloxId || SESSION.user.id || '');
+  // Check server-loaded admin IDs
+  if (uid && ADMIN_IDS.indexOf(uid) !== -1) return true;
+  // Check roles from server
+  return SESSION && S.roles && (S.roles.indexOf('admin') !== -1 || S.roles.indexOf('owner') !== -1);
+}
 
 // ═══════════════════════════════════════
 //  LOAD API KEYS
@@ -1141,17 +1173,17 @@ function buildSysPrompt() {
       '',
       'FOR GUI: ALWAYS write a LocalScript/Script that builds GUI via Instance.new()',
       'UIScale is REQUIRED for AutoScaled GUIs. Add it like:',
-        '    local UIScale = Instance.new("UIScale")',
-        '    UIScale.Scale = 1',
-        '    UIScale.Parent = screenGui',
+      '  local UIScale = Instance.new("UIScale")',
+      '  UIScale.Scale = 1',
+      '  UIScale.Parent = screenGui',
     ].join('\n');
-} else {
+  } else {
     studioSection = [
       'STUDIO NOT CONNECTED. Tell user:',
-      '"To inject scripts directly to Studio, click NEXUS AI in Roblox Studio toolbar -> CONNECT"',
-        'Still provide COMPLETE Lua code in ```lua code blocks so user can copy manually.',
+      '"To inject scripts directly to Studio, click NEXUS AI in Roblox Studio toolbar → CONNECT"',
+      'Still provide COMPLETE Lua code in ```lua code blocks so user can copy manually.',
     ].join('\n');
-}
+  }
 
   var prompt = [
     'You are NEXUS AI, the most advanced AI assistant for Roblox and Minecraft developers.',
@@ -1239,7 +1271,7 @@ function buildSysPrompt() {
     '- Debounce for all spammable events',
     '- pcall() for all operations that can fail',
     '',
-    'Remember: NEVER truncate scripts. Build EVERYTHING n'
+    'Remember: NEVER truncate scripts. Build EVERYTHING needed. User just clicks Play!',
   ].join('\n');
 
   return prompt;
@@ -1263,7 +1295,8 @@ async function initApp(){
   var u = SESSION.user;
   document.getElementById('sbAv').src = u.avatar || 'nexusai.png';
   document.getElementById('sbUn').textContent = u.username;
-  document.getElementById('sbRole').textContent = isOwner()?'★ Admin · Unlimited':(S.plan==='pro'?'Pro Member':'Roblox Developer');
+  var roleText = isOwner() ? '⭐ Owner · Unlimited' : (isAdmin() ? '🛡 Admin · Unlimited' : (S.plan==='pro' ? '💎 Pro Member' : 'Roblox Developer'));
+  document.getElementById('sbRole').textContent = roleText;
 
   curLang = S.language || 'id';
   applyLang();
@@ -1297,7 +1330,7 @@ var CREDIT_MIN   = 0.1;
 function updateCreds(){
   var cr=document.getElementById('credDisp');
   var el=document.getElementById('credsEl');
-  if(isOwner()){cr.textContent='∞';cr.style.color='var(--yellow)';el.classList.remove('low');return;}
+  if(isOwner()||isAdmin()){cr.textContent='∞';cr.style.color='var(--yellow)';el.classList.remove('low');return;}
   cr.textContent=parseFloat(S.credits).toFixed(2);
   var low=S.credits<CREDIT_MIN;
   cr.style.color=low?'var(--pink)':'var(--yellow)';
@@ -2330,15 +2363,125 @@ function runConsoleCmd(cmd){
   consoleHistory.unshift(cmd);
   consoleLog(cmd,'cmd');
   var parts=cmd.trim().split(' '); var command=parts[0].toLowerCase();
-  if(command==='/help'){['/give-credits <user> <amount>','/my-info','/reset-credits','/clear'].forEach(function(s){consoleLog(s,'info');});}
-  else if(command==='/give-credits'){
+  var helpLines = [
+    '/give-credits <username> <amount>  — Add credits to user',
+    '/take-credits <username> <amount>  — Remove credits from user',
+    '/set-plan <username> <plan>        — Set plan (free/pro)',
+    '/ban <username> [reason]           — Ban a user',
+    '/unban <username>                  — Unban a user',
+    '/reset-credits <username>          — Reset user credits to 30',
+    '/user-info <username>              — View user data',
+    '/my-info                           — Your info',
+    '/list-users                        — List all users (admin)',
+    '/clear                             — Clear console',
+    '/help                              — Show commands',
+  ];
+  if(command==='/help'){
+    helpLines.forEach(function(s){consoleLog(s,'info');});
+  } else if(command==='/my-info'){
+    if(SESSION){ consoleLog('User: @'+SESSION.user.username+' | DisplayName: '+SESSION.user.displayName+' | Plan: '+S.plan+' | Credits: '+parseFloat(S.credits).toFixed(2)+' | Owner: '+isOwner()+' | Admin: '+isAdmin(),'info'); }
+  } else if(command==='/clear'){
+    document.getElementById('consoleBox').innerHTML=''; consoleLog('Console cleared.','info');
+  } else if(command==='/give-credits'){
+    if(parts.length<3){consoleLog('Usage: /give-credits <username> <amount>','err');return;}
+    var targetUser=parts[1].toLowerCase().replace('@','');
     var amount=parseFloat(parts[2]);
-    if(!isNaN(amount)&&SESSION&&parts[1].toLowerCase()===SESSION.user.username.toLowerCase()){S.credits=parseFloat((S.credits+amount).toFixed(4));updateCreds();saveS();consoleLog('Gave '+amount+' CR. Total: '+S.credits,'ok');}
-    else consoleLog('User tidak ditemukan atau invalid','err');
-  }else if(command==='/my-info'){if(SESSION){consoleLog('User: '+SESSION.user.username+' | Plan: '+S.plan+' | Credits: '+parseFloat(S.credits).toFixed(2),'info');}}
-  else if(command==='/reset-credits'){S.credits=30;updateCreds();saveS();consoleLog('Reset ke 30 CR','ok');}
-  else if(command==='/clear'){document.getElementById('consoleBox').innerHTML='';consoleLog('Cleared','info');}
-  else{consoleLog('Unknown: '+command,'err');}
+    if(isNaN(amount)||amount<=0){consoleLog('Invalid amount: '+parts[2],'err');return;}
+    consoleLog('Adding '+amount+' CR to @'+targetUser+'...','info');
+    fetch('/api/sync', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user:targetUser, action:'give-credits', target:targetUser, amount:amount})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.success){consoleLog('✅ +'+amount+' CR given to @'+targetUser+'. New total: '+d.newCredits+' CR','ok');}
+      else{consoleLog('❌ Error: '+(d.error||'Unknown error'),'err');}
+    }).catch(function(e){consoleLog('Network error: '+e.message,'err');});
+  } else if(command==='/take-credits'){
+    if(parts.length<3){consoleLog('Usage: /take-credits <username> <amount>','err');return;}
+    var targetUser=parts[1].toLowerCase().replace('@','');
+    var amount=parseFloat(parts[2]);
+    if(isNaN(amount)||amount<=0){consoleLog('Invalid amount','err');return;}
+    fetch('/api/sync', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user:targetUser, action:'give-credits', target:targetUser, amount:-amount})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.success){consoleLog('✅ -'+amount+' CR taken from @'+targetUser+'. New total: '+d.newCredits+' CR','ok');}
+      else{consoleLog('❌ Error: '+(d.error||'Unknown'),'err');}
+    }).catch(function(e){consoleLog('Error: '+e.message,'err');});
+  } else if(command==='/set-plan'){
+    if(parts.length<3){consoleLog('Usage: /set-plan <username> <free|pro>','err');return;}
+    var targetUser=parts[1].toLowerCase().replace('@','');
+    var plan=parts[2].toLowerCase();
+    if(!['free','pro'].includes(plan)){consoleLog('Plan must be: free or pro','err');return;}
+    fetch('/api/sync', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user:targetUser, action:'set-plan', target:targetUser, plan:plan})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.success){consoleLog('✅ Plan @'+targetUser+' set to '+plan,'ok');}
+      else{consoleLog('❌ Error: '+(d.error||'Unknown'),'err');}
+    }).catch(function(e){consoleLog('Error: '+e.message,'err');});
+  } else if(command==='/reset-credits'){
+    var targetUser=parts.length>1?parts[1].toLowerCase().replace('@',''):(SESSION?SESSION.user.username.toLowerCase():'');
+    if(!targetUser){consoleLog('Usage: /reset-credits <username>','err');return;}
+    fetch('/api/sync', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user:targetUser, action:'reset-credits', target:targetUser})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.success){
+        consoleLog('✅ Credits reset to 30 for @'+targetUser,'ok');
+        if(targetUser===SESSION.user.username.toLowerCase()){S.credits=30;updateCreds();}
+      }
+      else{consoleLog('❌ Error: '+(d.error||'Unknown'),'err');}
+    }).catch(function(e){consoleLog('Error: '+e.message,'err');});
+  } else if(command==='/ban'){
+    if(parts.length<2){consoleLog('Usage: /ban <username> [reason]','err');return;}
+    var targetUser=parts[1].toLowerCase().replace('@','');
+    var reason=parts.slice(2).join(' ')||'No reason given';
+    fetch('/api/sync', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user:targetUser, action:'ban', target:targetUser, reason:reason})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.success){consoleLog('✅ @'+targetUser+' BANNED. Reason: '+reason,'ok');}
+      else{consoleLog('❌ Error: '+(d.error||'Unknown'),'err');}
+    }).catch(function(e){consoleLog('Error: '+e.message,'err');});
+  } else if(command==='/unban'){
+    if(parts.length<2){consoleLog('Usage: /unban <username>','err');return;}
+    var targetUser=parts[1].toLowerCase().replace('@','');
+    fetch('/api/sync', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user:targetUser, action:'unban', target:targetUser})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.success){consoleLog('✅ @'+targetUser+' unbanned.','ok');}
+      else{consoleLog('❌ Error: '+(d.error||'Unknown'),'err');}
+    }).catch(function(e){consoleLog('Error: '+e.message,'err');});
+  } else if(command==='/user-info'){
+    if(parts.length<2){consoleLog('Usage: /user-info <username>','err');return;}
+    var targetUser=parts[1].toLowerCase().replace('@','');
+    fetch('/api/sync?user='+encodeURIComponent(targetUser))
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d){consoleLog('User @'+targetUser+' not found in database.','err');return;}
+        consoleLog('=== @'+targetUser+' ===','info');
+        consoleLog('Credits: '+parseFloat(d.credits||0).toFixed(2)+' CR','info');
+        consoleLog('Plan: '+(d.plan||'free'),'info');
+        consoleLog('Banned: '+(d.banned?'YES':'No'),'info');
+        if(d.banned&&d.banReason) consoleLog('Ban reason: '+d.banReason,'err');
+        consoleLog('Last seen: '+(d._updated?new Date(d._updated).toLocaleString():'Never'),'info');
+      }).catch(function(e){consoleLog('Error: '+e.message,'err');});
+  } else if(command==='/list-users'){
+    fetch('/api/sync?list=1')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var keys=Object.keys(d||{});
+        consoleLog('Total users: '+keys.length,'info');
+        keys.slice(0,20).forEach(function(u){
+          var ud=d[u];
+          consoleLog('@'+u+' | '+parseFloat(ud.credits||0).toFixed(0)+'CR | '+(ud.plan||'free')+(ud.banned?' [BANNED]':''),'info');
+        });
+        if(keys.length>20) consoleLog('...and '+(keys.length-20)+' more','info');
+      }).catch(function(e){consoleLog('Error: '+e.message,'err');});
+  } else {
+    consoleLog('Unknown command: '+command+'. Type /help for commands.','err');
+  }
 }
 
 // ═══════════════════════════════════════
