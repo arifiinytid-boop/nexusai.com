@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/lua.min.js"></script>
 <style>
 :root{
@@ -324,7 +325,7 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
       </div>
       <div>
         <div class="sb-logo-text">NEXUS AI</div>
-        <div class="sb-logo-sub">v7.0 · Roblox Dev</div>
+        <div class="sb-logo-sub">v6.0 · Roblox Dev</div>
       </div>
     </div>
     <div class="sb-user">
@@ -1219,8 +1220,11 @@ function buildSysPrompt() {
     '- Never say "you cannot" for Roblox-related things',
     '',
     '===== MANDATORY CODE RULES =====',
-    '1. ALWAYS output COMPLETE code — NO "..." or "-- continues" or "-- etc"',
+    '1. ALWAYS output COMPLETE code — NO "..." or "-- continues" or "-- etc" or "// rest of code"',
     '2. 200-line script → output all 200 lines. 500+ lines → output all 500+ lines',
+    '3. CRITICAL: If you start writing a function, ALWAYS finish it. Never stop in the middle.',
+    '4. If the code is long, break it into sections but ALWAYS output each section in FULL.',
+    '5. NEVER say "I will continue" or "see above" - always output everything in one response.',
     '3. Use task.wait() not wait() | task.spawn() not spawn()',
     '4. ALWAYS wrap DataStore in pcall()',
     '5. ALWAYS check nil with :FindFirstChild() before using objects',
@@ -1243,6 +1247,15 @@ function buildSysPrompt() {
     '- UICorner for rounded corners (CornerRadius = UDim.new(0, 8) or more)',
     '- BorderSizePixel = 0 for all elements',
     '- TweenService for smooth animations (hover, click, open/close)',
+    '- ANIMATION RULES (critical to avoid errors):',
+    '  * NEVER tween properties that do not exist on the instance',
+    '  * Always check instance exists before tweening: if frame and frame.Parent then',
+    '  * Use pcall() around tweens that might fail: pcall(function() TweenService:Create(...):Play() end)',
+    '  * For button hover effects, use only BackgroundColor3, BackgroundTransparency, Size (scale only)',
+    '  * For open/close animations, tween Size or Position but verify UDim2 values are valid',
+    '  * NEVER use deprecated properties like SelectedBackgroundColor3 or TextButton.Selected',
+    '  * Always use task.wait() not wait() inside animations',
+    '  * For image buttons, verify ImageButton properties (not Frame properties)',
     '- UIScale REQUIRED inside ScreenGui for AutoScaled',
     '- ScreenGui: ResetOnSpawn = false, IgnoreGuiInset = true',
     '- ZIndexBehavior = Enum.ZIndexBehavior.Sibling',
@@ -1665,6 +1678,8 @@ function mkMsg(m){
       '<button class="mab" onclick="shareMsgText(\''+mid+'\')"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>'+
       '</div>'+
       '</div>';
+    // Auto-add Minecraft download button if response has mod/addon content
+    setTimeout(function(){ addMinecraftDownloadBtn(d, m.content||''); }, 100);
   }
   return d;
 }
@@ -1681,6 +1696,72 @@ function appendMsg(m){
 function copyMsgText(id){var el=document.getElementById('bubble_'+id);if(!el)return;navigator.clipboard.writeText(el.innerText).then(function(){toast('Disalin!');});}
 function shareMsgText(id){var el=document.getElementById('bubble_'+id);if(!el)return;var txt=el.innerText;if(navigator.share)navigator.share({title:'NEXUS AI',text:txt}).catch(function(){});else navigator.clipboard.writeText(txt).then(function(){toast('Disalin!');});}
 function copyCode(id){var b=document.querySelector('#'+id+' code');if(!b)return;navigator.clipboard.writeText(b.innerText).then(function(){toast('Disalin!');});}
+
+// Minecraft file packaging - create downloadable files from AI response
+function downloadMinecraftFiles(responseText, filename){
+  // Parse files from response (each starts with // === FILE: path ===)
+  var files = [];
+  // Parse files from response
+  var fileRegex2 = /\/\/\s*===\s*FILE:\s*([^\r\n]+?)\s*===/g;
+  var files = [];
+  var fm;
+  while((fm = fileRegex2.exec(responseText)) !== null) {
+    var filePath = fm[1].trim();
+    var nextMatch = responseText.indexOf('//' + ' === FILE:', fm.index + fm[0].length);
+    var fileContent = nextMatch > 0 ? responseText.slice(fm.index + fm[0].length, nextMatch) : responseText.slice(fm.index + fm[0].length);
+    files.push({ path: filePath, content: fileContent.trim() });
+  }
+  // files array already populated above
+  if(files.length === 0){
+    // No file markers - just download as single file
+    var ext = responseText.includes('fabric.mod.json') ? '.zip' :
+              responseText.includes('manifest') ? '.mcaddon' : '.txt';
+    var blob = new Blob([responseText], {type:'text/plain'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = (filename || 'nexusai_mod') + ext; a.click();
+    URL.revokeObjectURL(a.href);
+    toast('File didownload!');
+    return;
+  }
+  // Multiple files - download as zip using JSZip if available, else download each
+  if(typeof JSZip !== 'undefined'){
+    var zip = new JSZip();
+    files.forEach(function(f){ zip.file(f.path, f.content); });
+    zip.generateAsync({type:'blob'}).then(function(blob){
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = (filename || 'nexusai_mod') + '.zip'; a.click();
+      URL.revokeObjectURL(a.href);
+      toast('ZIP didownload! '+files.length+' files');
+    });
+  } else {
+    // Fallback: download files individually
+    files.forEach(function(f, i){
+      setTimeout(function(){
+        var blob = new Blob([f.content], {type:'text/plain'});
+        var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+        var fname = f.path.split('/').pop();
+        a.download = fname; a.click(); URL.revokeObjectURL(a.href);
+      }, i * 300);
+    });
+    toast('Downloading '+files.length+' files...');
+  }
+}
+
+// Auto-detect Minecraft content and offer download button
+function addMinecraftDownloadBtn(msgEl, responseText){
+  var isMcMod = /fabric\.mod\.json|build\.gradle|ModInitializer|@Mod\(|mods\.toml|forge/i.test(responseText);
+  var isMcAddon = /manifest\.json.*format_version|behavior_pack|resource_pack|@minecraft\/server/i.test(responseText);
+  if(!isMcMod && !isMcAddon) return;
+  var type = isMcAddon ? 'Addon (.mcaddon)' : 'Mod (ZIP)';
+  var ext = isMcAddon ? 'nexus_addon' : 'nexus_mod';
+  var acts = msgEl.querySelector('.msg-acts');
+  if(!acts) return;
+  var btn = document.createElement('button'); btn.className = 'mab';
+  btn.style.cssText = 'background:rgba(0,255,170,.1);color:var(--green);border-color:rgba(0,255,170,.3);';
+  btn.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download '+type;
+  btn.onclick = function(){ downloadMinecraftFiles(responseText, ext); };
+  acts.appendChild(btn);
+}
 function copyUserCode(id){var el=document.getElementById(id);if(!el)return;navigator.clipboard.writeText(el.innerText).then(function(){toast('Disalin!');});}
 function downloadCode(id,lang){var b=document.querySelector('#'+id+' code');if(!b)return;var ext=lang==='lua'?'lua':'txt';var blob=new Blob([b.innerText],{type:'text/plain'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='nexusai.'+ext;a.click();URL.revokeObjectURL(a.href);}
 function toggleEditCode(id){var code=document.getElementById('code_'+id);if(!code)return;var editing=code.contentEditable==='true';code.contentEditable=editing?'false':'true';code.style.outline=editing?'none':'1.5px solid var(--cyan2)';if(!editing){code.focus();toast('Mode edit aktif');}}
@@ -2015,7 +2096,7 @@ async function callClaude(model,attachments,signal,sys){
   var cleanModel=model.replace('anthropic/','');
   var imgs=attachments.filter(function(a){return a.type==='image';});
   if(imgs.length&&ms.length>0){var l=ms[ms.length-1];if(l.role==='user'){var parts=imgs.map(function(a){return{type:'image',source:{type:'base64',media_type:a.mime||'image/jpeg',data:a.dataUrl.split(',')[1]}};});parts.push({type:'text',text:l.content});l.content=parts;}}
-  var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:signal,headers:{'Content-Type':'application/json','x-api-key':K.claude,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cleanModel,max_tokens:8192,system:sys,messages:ms})});
+  var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:signal,headers:{'Content-Type':'application/json','x-api-key':K.claude,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cleanModel,max_tokens:16000,system:sys,messages:ms})});
   if(!r.ok){var e=await r.json().catch(function(){return{};});throw new Error((e.error&&e.error.message)||'Claude '+r.status);}
   var d=await r.json();
   if(d.content&&d.content[0]&&d.content[0].text) return d.content[0].text;
@@ -2029,7 +2110,7 @@ async function callOpenAI(model,attachments,signal,sys){
   var imgs=attachments.filter(function(a){return a.type==='image';});
   if(imgs.length&&all.length>0){var l=all[all.length-1];if(l.role==='user'){l.content=[{type:'text',text:l.content}].concat(imgs.map(function(a){return{type:'image_url',image_url:{url:a.dataUrl}};}));}}
   var body={model:model,messages:all};
-  if(!model.startsWith('o')) body.max_tokens=16384;
+  if(model.startsWith('o')) body.max_completion_tokens=32768; else body.max_tokens=16384;
   var r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',signal:signal,headers:{'Content-Type':'application/json','Authorization':'Bearer '+K.openai},body:JSON.stringify(body)});
   if(!r.ok){var e=await r.json().catch(function(){return{};});throw new Error((e.error&&e.error.message)||'OpenAI '+r.status);}
   var d=await r.json();
