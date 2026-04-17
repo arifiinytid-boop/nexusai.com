@@ -3,6 +3,7 @@
 // Setup: Set DISCORD_TOKEN, DISCORD_CLIENT_ID, DISCORD_PUBLIC_KEY in Vercel env
 // Bot invite: https://discord.com/oauth2/authorize?client_id=YOUR_ID&permissions=8&scope=bot+applications.commands
 
+import nacl from 'tweetnacl';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import crypto from 'crypto';
 
@@ -15,7 +16,6 @@ function verifyDiscordSignature(req, body) {
   if (!signature || !timestamp || !publicKey) return false;
 
   try {
-    const nacl = require('tweetnacl');
     const msg  = Buffer.from(timestamp + JSON.stringify(body));
     const sig  = Buffer.from(signature, 'hex');
     const key  = Buffer.from(publicKey, 'hex');
