@@ -395,9 +395,16 @@ body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(0
       </button>
       <div class="tab-right">
         <button class="think-toggle active" id="thinkToggle" onclick="toggleThinking()">
-          <svg width="11" height="11" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:3px"><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><circle cx="12" cy="12" r="10"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span id="thinkLabel">Think: ON</span>
-        </button>
+  <svg width="12" height="12" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:4px;flex-shrink:0;">
+    <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/>
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="12" y1="17" x2="12.01" y2="17"/>
+  </svg>
+  <span id="thinkLabel">Think</span>
+  <div id="thinkIndicator" style="width:28px;height:14px;border-radius:7px;background:rgba(0,229,255,.15);border:1px solid var(--cyan2);position:relative;margin-left:4px;transition:.2s;">
+    <div id="thinkKnob" style="width:10px;height:10px;border-radius:50%;background:var(--cyan);position:absolute;top:1px;left:1px;transition:.2s;"></div>
+  </div>
+</button>
       </div>
     </div>
 
