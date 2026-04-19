@@ -1,125 +1,146 @@
-// api/admin.js — NEXUS AI Admin/Owner Management V8.2
-// Cek role user berdasarkan Roblox User ID dan username
+// api/admin.js — NEXUS AI Admin Management v1
+// Owner and Admin identification by Roblox User ID (NOT username)
+// Set OWNER_IDS and ADMIN_IDS in Vercel env vars as comma-separated Roblox user IDs
 
-let kv = null;
-async function getKV() {
-  if (kv) return kv;
-  try { const m = await import('@vercel/kv'); kv = m.kv || m.default || m; } catch(e) {}
-  return kv;
+import { readFileSync, writeFileSync, existsSync } from 'fs';
+
+const ADMIN_FILE = '/tmp/nexus_admins.json';
+
+// Parse comma-separated IDs from env
+function parseIds(envStr) {
+  return (envStr || '').split(',').map(s => s.trim()).filter(Boolean);
 }
 
-// Owner IDs dari env var (Roblox User IDs, comma-separated)
 function getOwnerIds() {
-  return (process.env.OWNER_IDS || process.env.DISCORD_OWNER_IDS || '').split(',').map(s => s.trim()).filter(Boolean);
-}
-// Admin IDs dari env var (Roblox User IDs, comma-separated)
-function getAdminIds() {
-  const ownerIds = getOwnerIds();
-  const adminOnly = (process.env.ADMIN_IDS || process.env.DISCORD_ADMIN_IDS || '').split(',').map(s => s.trim()).filter(Boolean);
-  return [...ownerIds, ...adminOnly]; // owners selalu juga admin
+  // From env var OWNER_IDS (comma-separated Roblox user IDs)
+  const fromEnv = parseIds(process.env.OWNER_IDS);
+  return fromEnv.length ? fromEnv : ['128649548']; // fallback: FIINYTID25's user ID
 }
 
-function isOwner(id) { return id && getOwnerIds().includes(String(id)); }
-function isAdmin(id) { return id && getAdminIds().includes(String(id)); }
+function getAdminIds() {
+  // From env var ADMIN_IDS + dynamic admin file
+  const fromEnv = parseIds(process.env.ADMIN_IDS);
+  let fromFile = [];
+  try {
+    if (existsSync(ADMIN_FILE)) {
+      fromFile = JSON.parse(readFileSync(ADMIN_FILE, 'utf8'));
+    }
+  } catch(_) {}
+  return [...new Set([...fromEnv, ...fromFile])];
+}
+
+function isOwner(userId) {
+  const id = String(userId);
+  return getOwnerIds().includes(id);
+}
+
+function isAdmin(userId) {
+  const id = String(userId);
+  return isOwner(id) || getAdminIds().includes(id);
+}
+
+function addAdmin(userId) {
+  const id = String(userId);
+  let admins = [];
+  try {
+    if (existsSync(ADMIN_FILE)) admins = JSON.parse(readFileSync(ADMIN_FILE, 'utf8'));
+  } catch(_) {}
+  if (!admins.includes(id)) {
+    admins.push(id);
+    writeFileSync(ADMIN_FILE, JSON.stringify(admins));
+  }
+}
+
+function removeAdmin(userId) {
+  const id = String(userId);
+  let admins = [];
+  try {
+    if (existsSync(ADMIN_FILE)) admins = JSON.parse(readFileSync(ADMIN_FILE, 'utf8'));
+  } catch(_) {}
+  admins = admins.filter(a => a !== id);
+  writeFileSync(ADMIN_FILE, JSON.stringify(admins));
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const db = await getKV();
-
-  // ── GET: cek role berdasarkan robloxId atau username ─────────
+  // GET: Check if a userId is owner/admin
   if (req.method === 'GET') {
-    const robloxId = req.query.robloxId || req.query.userId || null;
-    const username = req.query.username ? String(req.query.username).toLowerCase() : null;
+    const userId = req.query.userId || req.query.user_id || '';
 
-    // Cek dari env var (robloxId)
-    if (robloxId) {
-      const owner = isOwner(robloxId);
-      const admin = isAdmin(robloxId);
-      if (owner || admin) {
-        return res.status(200).json({
-          robloxId,
-          role:    owner ? 'owner' : 'admin',
-          isOwner: owner,
-          isAdmin: admin,
-        });
+    if (req.query.list) {
+      // Admin-only: list all admins (requires owner token)
+      const token = req.query.token;
+      if (token !== process.env.ADMIN_TOKEN) {
+        return res.status(401).json({ error: 'Unauthorized' });
       }
+      return res.status(200).json({
+        owners: getOwnerIds(),
+        admins: getAdminIds(),
+      });
     }
 
-    // Cek dari KV (username → roles array atau plan)
-    if (username && db) {
-      try {
-        const userData = await db.get('nexusai:' + username);
-        if (userData) {
-          const roles  = userData.roles || [];
-          const plan   = userData.plan || 'free';
-          const owner  = plan === 'owner' || roles.includes('owner');
-          const admin  = owner || plan === 'admin' || roles.includes('admin');
-          // Juga cek robloxId dari KV
-          if (!owner && !admin && userData.robloxId) {
-            const ownerByKvId = isOwner(userData.robloxId);
-            const adminByKvId = isAdmin(userData.robloxId);
-            if (ownerByKvId || adminByKvId) {
-              // Sync role ke user data
-              if (db) {
-                userData.plan = ownerByKvId ? 'owner' : 'admin';
-                userData.roles = ownerByKvId ? ['owner', 'admin'] : ['admin'];
-                await db.set('nexusai:' + username, userData, { ex: 60*60*24*365 });
-              }
-              return res.status(200).json({
-                username,
-                role: ownerByKvId ? 'owner' : 'admin',
-                isOwner: ownerByKvId,
-                isAdmin: true,
-                credits: userData.credits || 0,
-                plan: userData.plan,
-              });
-            }
-          }
-          return res.status(200).json({
-            username,
-            role:    owner ? 'owner' : admin ? 'admin' : 'user',
-            isOwner: owner,
-            isAdmin: admin,
-            credits: userData.credits || 0,
-            plan,
-          });
-        }
-      } catch(e) {}
+    if (req.query.publicList) {
+      // Public endpoint: return owner/admin IDs so web can check roles
+      // Only returns IDs (no names) for privacy
+      return res.status(200).json({
+        owners: getOwnerIds().map(o => o.id || o),
+        admins: getAdminIds().map(a => a.id || a),
+      });
     }
 
-    return res.status(200).json({ role: 'user', isOwner: false, isAdmin: false });
+    if (!userId) {
+      return res.status(400).json({ error: 'userId required' });
+    }
+
+    const ownerStatus = isOwner(userId);
+    const adminStatus = isAdmin(userId);
+    return res.status(200).json({
+      userId:  String(userId),
+      isOwner: ownerStatus,
+      isAdmin: adminStatus,
+      // Owner has unlimited credits, admin has 500 credits/day allowance
+      creditLimit: ownerStatus ? Infinity : (adminStatus ? 500 : null),
+      roles: ownerStatus ? ['owner', 'admin'] : (adminStatus ? ['admin'] : []),
+    });
   }
 
-  // ── POST: update role user ────────────────────────────────────
+  // POST: Add/remove admin (requires owner authentication)
   if (req.method === 'POST') {
     const body = req.body || {};
-    // Verifikasi requester adalah owner
-    const reqId = body.requesterId ? String(body.requesterId) : null;
-    if (!reqId || !isOwner(reqId)) {
-      return res.status(403).json({ error: 'Hanya Owner yang bisa mengubah role' });
+    const { action, targetUserId, requesterUserId, token } = body;
+
+    // Authenticate: must be owner OR provide admin token
+    const isRequesterOwner = isOwner(requesterUserId);
+    const hasToken = token === process.env.ADMIN_TOKEN;
+
+    if (!isRequesterOwner && !hasToken) {
+      return res.status(403).json({ error: 'Forbidden: Owner access or admin token required' });
     }
 
-    const targetUsername = String(body.target || '').toLowerCase();
-    const newRole        = body.role || 'user';
-    if (!targetUsername) return res.status(400).json({ error: 'target diperlukan' });
-    if (!['user','admin','owner'].includes(newRole)) return res.status(400).json({ error: 'role tidak valid' });
-
-    if (!db) return res.status(503).json({ error: 'KV tidak tersedia' });
-
-    try {
-      const existing = await db.get('nexusai:' + targetUsername) || {};
-      existing.roles   = newRole === 'owner' ? ['owner', 'admin'] : newRole === 'admin' ? ['admin'] : [];
-      existing.plan    = newRole === 'user' ? (existing.plan || 'free') : newRole;
-      existing._updated = Date.now();
-      await db.set('nexusai:' + targetUsername, existing, { ex: 60*60*24*365 });
-      return res.status(200).json({ success: true, target: targetUsername, role: newRole });
-    } catch(e) {
-      return res.status(500).json({ error: e.message });
+    if (action === 'add_admin') {
+      if (!targetUserId) return res.status(400).json({ error: 'targetUserId required' });
+      addAdmin(targetUserId);
+      return res.status(200).json({ status: 'ok', action: 'added', userId: targetUserId });
     }
+
+    if (action === 'remove_admin') {
+      if (!targetUserId) return res.status(400).json({ error: 'targetUserId required' });
+      removeAdmin(targetUserId);
+      return res.status(200).json({ status: 'ok', action: 'removed', userId: targetUserId });
+    }
+
+    if (action === 'set_credits') {
+      // Owner can set unlimited credits for a user via sync API
+      // This just validates the request
+      if (!isRequesterOwner) return res.status(403).json({ error: 'Owner only' });
+      return res.status(200).json({ status: 'ok', message: 'Use /api/sync to set credits directly' });
+    }
+
+    return res.status(400).json({ error: 'Unknown action. Use: add_admin, remove_admin, set_credits' });
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
