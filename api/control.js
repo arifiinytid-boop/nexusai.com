@@ -79,6 +79,17 @@ const VALID = new Set([
   'create_spawn', 'set_value', 'create_value', 'create_remote', 'batch_remote',
   'print_output', 'get_output', 'read_workspace', 'workspace_data',
   'set_game_info', 'modify_humanoid', 'batch_commands',
+  // NEW V8.2+ actions
+  'create_wedge', 'create_cylinder', 'create_sphere', 'create_truss',
+  'move_object', 'rotate_object', 'resize_object',
+  'place_decal', 'place_texture', 'create_trail', 'create_beam',
+  'create_constraint', 'create_sky', 'create_water', 'create_fire',
+  'create_smoke', 'create_sparkles', 'create_selectbox', 'create_hinge',
+  'create_door', 'create_window', 'create_stairs', 'create_ramp',
+  'create_tree', 'create_rock', 'group_parts', 'ungroup_model',
+  'anchor_all', 'unanchor_all', 'set_property', 'copy_properties',
+  'create_hat', 'create_attachment', 'create_motor6d', 'create_humanoid',
+  'run_lua', 'batch_modify',
 ]);
 
 export default async function handler(req, res) {
