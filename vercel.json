@@ -1,13 +1,13 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/",            "destination": "/index.html" },
-    { "source": "/login",       "destination": "/login.html" },
-    { "source": "/payment",     "destination": "/payment.html" },
-    { "source": "/discord-app", "destination": "/discord-app.html" },
-    { "source": "/privacy",     "destination": "/privacy.html" },
-    { "source": "/terms",       "destination": "/terms.html" },
-    { "source": "/actions",       "destination": "/actions.html" }
+    { "source": "/",             "destination": "/index.html" },
+    { "source": "/login",        "destination": "/login.html" },
+    { "source": "/payment",      "destination": "/payment.html" },
+    { "source": "/discord-app",  "destination": "/discord-app.html" },
+    { "source": "/privacy",      "destination": "/privacy.html" },
+    { "source": "/terms",        "destination": "/terms.html" },
+    { "source": "/actions",      "destination": "/actions.html" }
   ],
   "headers": [
     {
