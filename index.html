@@ -1810,7 +1810,7 @@ function toggleThinking(){
   thinkingEnabled=!thinkingEnabled;
   var btn=document.getElementById('thinkToggle');
   btn.classList.toggle('active',thinkingEnabled);
-  document.getElementById('thinkLabel').textContent=thinkingEnabled?'Think: ON':'Think: OFF';
+  document.getElementById('thinkLabel').textContent=thinkingEnabled?'Thinking: ON':'Thinking: OFF';
   toast(thinkingEnabled?'Thinking mode ON':'Fast mode');
 }
 function getThinkSteps(prompt){
